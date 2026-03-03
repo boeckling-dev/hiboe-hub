@@ -154,7 +154,7 @@ export function PlanningWizard() {
       setSuggestions(result)
       // Auto-accept all suggestions initially
       setAcceptedIndices(new Set(result.suggestions.map((_, i) => i)))
-    } catch {
+    } catch (err) {
       setGenerateError(
         err instanceof Error
           ? err.message
