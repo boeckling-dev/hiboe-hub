@@ -57,11 +57,14 @@ export const mealPlanEntries = pgTable('meal_plan_entries', {
     .notNull(),
   day: varchar('day', { length: 10 }).notNull(), // mo, di, mi, do, fr, sa, so
   mealType: varchar('meal_type', { length: 20 }).notNull(), // lunch, dinner
-  category: varchar('category', { length: 20 }).notNull(), // family, kids
+  category: varchar('category', { length: 20 }).notNull(), // alle, erwachsene, kinder
   recipeId: integer('recipe_id').references(() => recipes.id, {
     onDelete: 'set null',
   }),
   customMealNote: text('custom_meal_note'), // for manual overrides without a recipe
+  mealSource: varchar('meal_source', { length: 20 }).default('rezept').notNull(), // rezept, lieferservice, vorrat
+  deliveryServiceName: varchar('delivery_service_name', { length: 100 }), // e.g. "Pizza Hut"
+  vorratNote: text('vorrat_note'), // e.g. "Tiefgefrorene Lasagne"
 })
 
 // ─── Shopping List Items ──────────────────────────────────────────────────────
@@ -76,6 +79,44 @@ export const shoppingListItems = pgTable('shopping_list_items', {
   unit: varchar('unit', { length: 50 }),
   category: varchar('category', { length: 100 }), // Supermarkt, Drogerie, Biomarkt...
   checked: boolean('checked').default(false).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+})
+
+// ─── Family Preferences ─────────────────────────────────────────────────────
+
+export const familyPreferences = pgTable('family_preferences', {
+  id: serial('id').primaryKey(),
+  createdBy: text('created_by').notNull(), // Clerk user ID
+  familyMembers: jsonb('family_members').$type<{
+    name: string
+    role: 'erwachsener' | 'kind'
+    ageYears?: number
+    allergies: string[]
+    dislikes: string[]
+    favorites: string[]
+  }[]>().default([]),
+  dietaryRestrictions: jsonb('dietary_restrictions').$type<string[]>().default([]),
+  kitchenEquipment: jsonb('kitchen_equipment').$type<string[]>().default([]),
+  maxPrepTimeWeekday: integer('max_prep_time_weekday').default(30), // minutes
+  maxPrepTimeWeekend: integer('max_prep_time_weekend').default(60), // minutes
+  deliveryServices: jsonb('delivery_services').$type<{
+    name: string
+    url?: string
+  }[]>().default([]),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
+// ─── Meal Ratings ───────────────────────────────────────────────────────────
+
+export const mealRatings = pgTable('meal_ratings', {
+  id: serial('id').primaryKey(),
+  recipeId: integer('recipe_id').references(() => recipes.id, { onDelete: 'cascade' }),
+  mealPlanEntryId: integer('meal_plan_entry_id').references(() => mealPlanEntries.id, { onDelete: 'set null' }),
+  rating: integer('rating').notNull(), // 1 = thumbs down, 2 = thumbs up
+  kidsLikedIt: boolean('kids_liked_it'),
+  note: text('note'),
+  createdBy: text('created_by').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 })
 
@@ -161,3 +202,7 @@ export type PropertyCriteria = typeof propertyCriteria.$inferSelect
 export type NewPropertyCriteria = typeof propertyCriteria.$inferInsert
 export type Property = typeof properties.$inferSelect
 export type NewProperty = typeof properties.$inferInsert
+export type FamilyPreferences = typeof familyPreferences.$inferSelect
+export type NewFamilyPreferences = typeof familyPreferences.$inferInsert
+export type MealRating = typeof mealRatings.$inferSelect
+export type NewMealRating = typeof mealRatings.$inferInsert
