@@ -71,10 +71,11 @@ export async function generateWeeklySuggestions(params: {
   }
 
   try {
-    const [preferences, recentRecipes, recentRatings] = await Promise.all([
-      getFamilyPreferences(),
-      findRecentlyUsedRecipes(userId),
-      findRecentRatings(userId),
+    // Preferences are required; history and ratings are optional (tables may not exist yet)
+    const preferences = await getFamilyPreferences()
+    const [recentRecipes, recentRatings] = await Promise.all([
+      findRecentlyUsedRecipes(userId).catch(() => []),
+      findRecentRatings(userId).catch(() => []),
     ])
 
     // Ensure Date object (may arrive as ISO string from client serialization)
