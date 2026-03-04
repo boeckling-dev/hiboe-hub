@@ -151,15 +151,17 @@ export function PlanningWizard() {
         weekContext:
           Object.keys(weekContext).length > 0 ? weekContext : undefined,
       })
-      setSuggestions(result)
+
+      if (!result.success) {
+        setGenerateError(result.error)
+        return
+      }
+
+      setSuggestions(result.data)
       // Auto-accept all suggestions initially
-      setAcceptedIndices(new Set(result.suggestions.map((_, i) => i)))
-    } catch (err) {
-      setGenerateError(
-        err instanceof Error
-          ? err.message
-          : 'Fehler beim Erstellen der Vorschläge'
-      )
+      setAcceptedIndices(new Set(result.data.suggestions.map((_, i) => i)))
+    } catch {
+      setGenerateError('Fehler beim Erstellen der Vorschläge. Bitte versuche es erneut.')
     } finally {
       setIsGenerating(false)
     }
@@ -187,17 +189,19 @@ export function PlanningWizard() {
     const s = suggestions.suggestions[index]
 
     try {
-      const alternative = await generateAlternativeSuggestion({
+      const result = await generateAlternativeSuggestion({
         day: s.day,
         mealType: s.mealType,
         category: s.category,
         excludeRecipeIds: [],
       })
 
+      if (!result.success) return
+
       setSuggestions((prev) => {
         if (!prev) return prev
         const updated = [...prev.suggestions]
-        updated[index] = alternative
+        updated[index] = result.data
         return { ...prev, suggestions: updated }
       })
     } catch {

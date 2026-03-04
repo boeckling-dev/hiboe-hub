@@ -55,13 +55,15 @@ export function QuickSwapPopover({
         category,
         excludeRecipeIds,
       })
-      setAlternative(result)
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'Fehler beim Laden der Alternative'
-      )
+
+      if (!result.success) {
+        setError(result.error)
+        return
+      }
+
+      setAlternative(result.data)
+    } catch {
+      setError('Fehler beim Laden der Alternative')
     } finally {
       setIsLoading(false)
     }
