@@ -32,6 +32,33 @@ function getGermanMonth(date: Date): string {
   return GERMAN_MONTHS[date.getMonth()]
 }
 
+// ─── Error Classification ────────────────────────────────────────────────────
+
+function classifyError(raw: string): string {
+  // API key issues
+  if (/api.?key|auth|unauthorized|401/i.test(raw))
+    return `KI-Service Fehler: API-Key Problem. (${raw.slice(0, 120)})`
+
+  // Rate limits
+  if (/rate|429|too many/i.test(raw))
+    return 'Zu viele Anfragen. Bitte versuche es in einer Minute erneut.'
+
+  // Model not found
+  if (/model|not.?found|404/i.test(raw))
+    return `KI-Modell nicht verfügbar. (${raw.slice(0, 120)})`
+
+  // Network / timeout
+  if (/timeout|ECONNREFUSED|ENOTFOUND|network|fetch failed/i.test(raw))
+    return `Netzwerkfehler beim Aufruf der KI. (${raw.slice(0, 120)})`
+
+  // DB errors
+  if (/relation|column|database|drizzle|postgres|sql/i.test(raw))
+    return `Datenbankfehler: ${raw.slice(0, 150)}`
+
+  // Pass through the actual error (truncated) for anything else
+  return `Fehler: ${raw.slice(0, 200)}`
+}
+
 // ─── Server Actions ──────────────────────────────────────────────────────────
 
 export async function generateWeeklySuggestions(params: {
@@ -50,7 +77,10 @@ export async function generateWeeklySuggestions(params: {
       findRecentRatings(userId),
     ])
 
-    const currentDate = params.weekStartDate
+    // Ensure Date object (may arrive as ISO string from client serialization)
+    const currentDate = params.weekStartDate instanceof Date
+      ? params.weekStartDate
+      : new Date(params.weekStartDate)
     const currentSeason = getGermanSeason(currentDate)
     const currentMonth = getGermanMonth(currentDate)
 
@@ -66,15 +96,8 @@ export async function generateWeeklySuggestions(params: {
     return { success: true, data }
   } catch (err) {
     console.error('[generateWeeklySuggestions]', err)
-
-    const message =
-      err instanceof Error && err.message.includes('API key')
-        ? 'Der KI-Service ist nicht konfiguriert. Bitte ANTHROPIC_API_KEY in den Umgebungsvariablen setzen.'
-        : err instanceof Error && err.message.includes('rate')
-          ? 'Zu viele Anfragen. Bitte versuche es in einer Minute erneut.'
-          : 'Fehler beim Erstellen der Vorschläge. Bitte versuche es erneut.'
-
-    return { success: false, error: message }
+    const raw = err instanceof Error ? err.message : String(err)
+    return { success: false, error: classifyError(raw) }
   }
 }
 
@@ -108,6 +131,7 @@ export async function generateAlternativeSuggestion(params: {
     return { success: true, data }
   } catch (err) {
     console.error('[generateAlternativeSuggestion]', err)
-    return { success: false, error: 'Fehler beim Laden des Alternativvorschlags.' }
+    const raw = err instanceof Error ? err.message : String(err)
+    return { success: false, error: classifyError(raw) }
   }
 }
