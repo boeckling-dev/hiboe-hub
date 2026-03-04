@@ -65,7 +65,7 @@ export function DeliveryOrderDialog({
       <CardHeader className="relative pb-3">
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 text-slate-400 hover:text-slate-600"
+          className="absolute right-4 top-4 text-muted-foreground/60 hover:text-foreground/70"
         >
           <X className="h-4 w-4" />
         </button>
@@ -96,7 +96,7 @@ export function DeliveryOrderDialog({
         {/* Saved delivery services */}
         {deliveryServices.length > 0 && (
           <div className="space-y-1">
-            <p className="text-xs font-medium text-slate-500">Deine Lieferdienste</p>
+            <p className="text-xs font-medium text-muted-foreground">Deine Lieferdienste</p>
             {deliveryServices.map(service => (
               <button
                 key={service.name}
@@ -108,7 +108,7 @@ export function DeliveryOrderDialog({
                 className={`flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm transition-colors ${
                   selectedService === service.name
                     ? 'border-orange-500 bg-orange-50'
-                    : 'border-slate-200 hover:border-orange-300'
+                    : 'border-border hover:border-orange-300'
                 }`}
               >
                 <span>{service.name}</span>
@@ -130,7 +130,7 @@ export function DeliveryOrderDialog({
 
         {/* Custom service name */}
         <div>
-          <label className="text-xs font-medium text-slate-500">Oder eigenen eingeben</label>
+          <label className="text-xs font-medium text-muted-foreground">Oder eigenen eingeben</label>
           <input
             type="text"
             value={customService}
@@ -138,7 +138,7 @@ export function DeliveryOrderDialog({
               setCustomService(e.target.value)
               setSelectedService('')
             }}
-            className="mt-1 flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
+            className="mt-1 flex h-9 w-full rounded-md border border-border bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-meals-highlight/30"
             placeholder="z.B. Lieferando"
           />
         </div>

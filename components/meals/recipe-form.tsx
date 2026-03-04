@@ -101,77 +101,80 @@ export function RecipeForm({ recipe }: RecipeFormProps) {
     <form onSubmit={handleSubmit} className="space-y-6 pb-16 lg:pb-0">
       <Card>
         <CardHeader>
-          <CardTitle>{isEditing ? 'Rezept bearbeiten' : 'Neues Rezept'}</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <span>{isEditing ? '✏️' : '✨'}</span>
+            {isEditing ? 'Rezept bearbeiten' : 'Neues Rezept'}
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-slate-700">Titel *</label>
+            <label className="text-sm font-medium text-foreground/80">Titel *</label>
             <input
               type="text"
               required
               value={title}
               onChange={e => setTitle(e.target.value)}
-              className="mt-1 flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
+              className="mt-1 flex h-9 w-full rounded-md border border-border bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-meals-highlight/30"
               placeholder="z.B. Gemüse-Nudeln mit Tomatensauce"
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium text-slate-700">Beschreibung</label>
+            <label className="text-sm font-medium text-foreground/80">Beschreibung</label>
             <textarea
               value={description}
               onChange={e => setDescription(e.target.value)}
-              className="mt-1 flex min-h-[80px] w-full rounded-md border border-slate-200 bg-transparent px-3 py-2 text-base shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
+              className="mt-1 flex min-h-[80px] w-full rounded-md border border-border bg-transparent px-3 py-2 text-base shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-meals-highlight/30"
               placeholder="Kurze Beschreibung des Gerichts..."
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <div>
-              <label className="text-sm font-medium text-slate-700">Zubereitungszeit</label>
+              <label className="text-sm font-medium text-foreground/80">Zubereitungszeit</label>
               <div className="mt-1 flex items-center gap-2">
                 <input
                   type="number"
                   min={0}
                   value={prepTime}
                   onChange={e => setPrepTime(Number(e.target.value))}
-                  className="flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
+                  className="flex h-9 w-full rounded-md border border-border bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-meals-highlight/30"
                 />
-                <span className="text-sm text-slate-500">Min</span>
+                <span className="text-sm text-muted-foreground">Min</span>
               </div>
             </div>
 
             <div>
-              <label className="text-sm font-medium text-slate-700">Kochzeit</label>
+              <label className="text-sm font-medium text-foreground/80">Kochzeit</label>
               <div className="mt-1 flex items-center gap-2">
                 <input
                   type="number"
                   min={0}
                   value={cookTime}
                   onChange={e => setCookTime(Number(e.target.value))}
-                  className="flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
+                  className="flex h-9 w-full rounded-md border border-border bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-meals-highlight/30"
                 />
-                <span className="text-sm text-slate-500">Min</span>
+                <span className="text-sm text-muted-foreground">Min</span>
               </div>
             </div>
 
             <div>
-              <label className="text-sm font-medium text-slate-700">Portionen</label>
+              <label className="text-sm font-medium text-foreground/80">Portionen</label>
               <input
                 type="number"
                 min={1}
                 value={servings}
                 onChange={e => setServings(Number(e.target.value))}
-                className="mt-1 flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
+                className="mt-1 flex h-9 w-full rounded-md border border-border bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-meals-highlight/30"
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium text-slate-700">Schwierigkeit</label>
+              <label className="text-sm font-medium text-foreground/80">Schwierigkeit</label>
               <select
                 value={difficulty}
                 onChange={e => setDifficulty(e.target.value)}
-                className="mt-1 flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
+                className="mt-1 flex h-9 w-full rounded-md border border-border bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-meals-highlight/30"
               >
                 <option value="einfach">Einfach</option>
                 <option value="mittel">Mittel</option>
@@ -181,23 +184,23 @@ export function RecipeForm({ recipe }: RecipeFormProps) {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-slate-700">Tags (kommagetrennt)</label>
+            <label className="text-sm font-medium text-foreground/80">Tags (kommagetrennt)</label>
             <input
               type="text"
               value={tagsInput}
               onChange={e => setTagsInput(e.target.value)}
-              className="mt-1 flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
+              className="mt-1 flex h-9 w-full rounded-md border border-border bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-meals-highlight/30"
               placeholder="z.B. vegetarisch, schnell, kindgerecht"
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium text-slate-700">Quell-URL</label>
+            <label className="text-sm font-medium text-foreground/80">Quell-URL</label>
             <input
               type="url"
               value={sourceUrl}
               onChange={e => setSourceUrl(e.target.value)}
-              className="mt-1 flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
+              className="mt-1 flex h-9 w-full rounded-md border border-border bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-meals-highlight/30"
               placeholder="https://..."
             />
           </div>
@@ -207,7 +210,9 @@ export function RecipeForm({ recipe }: RecipeFormProps) {
       {/* Ingredients */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg">Zutaten</CardTitle>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <span>🥕</span> Zutaten
+          </CardTitle>
           <Button type="button" variant="outline" size="sm" onClick={addIngredient}>
             <Plus className="mr-1 h-4 w-4" />
             Zutat
@@ -216,26 +221,26 @@ export function RecipeForm({ recipe }: RecipeFormProps) {
         <CardContent className="space-y-2">
           {ingredients.map((ing, idx) => (
             <div key={idx} className="flex items-center gap-2">
-              <GripVertical className="h-4 w-4 text-slate-300 flex-shrink-0" />
+              <GripVertical className="h-4 w-4 text-muted-foreground/40 flex-shrink-0" />
               <input
                 type="text"
                 value={ing.quantity}
                 onChange={e => updateIngredient(idx, 'quantity', e.target.value)}
-                className="flex h-9 w-20 rounded-md border border-slate-200 bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
+                className="flex h-9 w-20 rounded-md border border-border bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-meals-highlight/30"
                 placeholder="200"
               />
               <input
                 type="text"
                 value={ing.unit}
                 onChange={e => updateIngredient(idx, 'unit', e.target.value)}
-                className="flex h-9 w-16 rounded-md border border-slate-200 bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
+                className="flex h-9 w-16 rounded-md border border-border bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-meals-highlight/30"
                 placeholder="g"
               />
               <input
                 type="text"
                 value={ing.name}
                 onChange={e => updateIngredient(idx, 'name', e.target.value)}
-                className="flex h-9 flex-1 rounded-md border border-slate-200 bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
+                className="flex h-9 flex-1 rounded-md border border-border bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-meals-highlight/30"
                 placeholder="Zutat"
               />
               <Button
@@ -243,7 +248,7 @@ export function RecipeForm({ recipe }: RecipeFormProps) {
                 variant="ghost"
                 size="sm"
                 onClick={() => removeIngredient(idx)}
-                className="text-slate-400 hover:text-red-500"
+                className="text-muted-foreground/60 hover:text-destructive"
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -255,7 +260,9 @@ export function RecipeForm({ recipe }: RecipeFormProps) {
       {/* Instructions */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg">Zubereitung</CardTitle>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <span>👩‍🍳</span> Zubereitung
+          </CardTitle>
           <Button type="button" variant="outline" size="sm" onClick={addInstruction}>
             <Plus className="mr-1 h-4 w-4" />
             Schritt
@@ -264,13 +271,13 @@ export function RecipeForm({ recipe }: RecipeFormProps) {
         <CardContent className="space-y-3">
           {instructions.map((inst, idx) => (
             <div key={idx} className="flex items-start gap-3">
-              <span className="mt-2 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-medium text-slate-600">
+              <span className="mt-2 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-meals-highlight-soft text-xs font-bold text-meals-highlight">
                 {inst.step}
               </span>
               <textarea
                 value={inst.text}
                 onChange={e => updateInstruction(idx, e.target.value)}
-                className="flex min-h-[60px] flex-1 rounded-md border border-slate-200 bg-transparent px-3 py-2 text-base shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
+                className="flex min-h-[60px] flex-1 rounded-md border border-border bg-transparent px-3 py-2 text-base shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-meals-highlight/30"
                 placeholder={`Schritt ${inst.step}...`}
               />
               <Button
@@ -278,7 +285,7 @@ export function RecipeForm({ recipe }: RecipeFormProps) {
                 variant="ghost"
                 size="sm"
                 onClick={() => removeInstruction(idx)}
-                className="mt-1 text-slate-400 hover:text-red-500"
+                className="mt-1 text-muted-foreground/60 hover:text-destructive"
               >
                 <Trash2 className="h-4 w-4" />
               </Button>

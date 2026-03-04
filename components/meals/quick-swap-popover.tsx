@@ -90,15 +90,15 @@ export function QuickSwapPopover({
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0" align="start">
         <div className="p-3">
-          <p className="mb-3 text-sm font-medium text-slate-700">
+          <p className="mb-3 text-sm font-medium text-foreground/80">
             Alternativer Vorschlag
           </p>
 
           {/* Loading state */}
           {isLoading && (
             <div className="flex flex-col items-center justify-center py-8">
-              <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
-              <p className="mt-2 text-xs text-slate-500">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground/60" />
+              <p className="mt-2 text-xs text-muted-foreground">
                 Suche Alternative...
               </p>
             </div>

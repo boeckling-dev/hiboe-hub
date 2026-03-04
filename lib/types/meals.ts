@@ -78,9 +78,36 @@ export const CATEGORY_LABELS: Record<Category, string> = {
 }
 
 export const CATEGORY_COLORS: Record<Category, { bg: string; border: string; text: string }> = {
-  alle: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700' },
-  erwachsene: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700' },
-  kinder: { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700' },
+  alle: { bg: 'bg-amber-50/80', border: 'border-amber-300', text: 'text-amber-800' },
+  erwachsene: { bg: 'bg-violet-50/80', border: 'border-violet-300', text: 'text-violet-800' },
+  kinder: { bg: 'bg-emerald-50/80', border: 'border-emerald-300', text: 'text-emerald-800' },
+}
+
+export const CATEGORY_EMOJIS: Record<Category, string> = {
+  alle: '👨‍👩‍👧‍👦',
+  erwachsene: '🍷',
+  kinder: '🧸',
+}
+
+export const DAY_EMOJIS: Record<Day, string> = {
+  mo: '💪',
+  di: '✨',
+  mi: '🌟',
+  do: '⚡',
+  fr: '🎉',
+  sa: '☀️',
+  so: '😴',
+}
+
+export const SHOPPING_CATEGORY_EMOJIS: Record<string, string> = {
+  'Obst & Gemüse': '🥦',
+  'Kühlregal': '🧈',
+  'Tiefkühl': '❄️',
+  'Brot & Backwaren': '🍞',
+  'Konserven & Trockenwaren': '🥫',
+  'Gewürze & Öle': '🌶️',
+  'Getränke': '🧃',
+  'Sonstiges': '🛒',
 }
 
 export const MEAL_SOURCES = ['rezept', 'lieferservice', 'vorrat'] as const

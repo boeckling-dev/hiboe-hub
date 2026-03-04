@@ -7,7 +7,7 @@ import { toggleShoppingItem, addShoppingItem, removeShoppingItem } from '@/lib/a
 import { Check, Plus, Trash2, ShoppingCart } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { ShoppingListItem } from '@/lib/db/schema'
-import { SHOPPING_CATEGORIES } from '@/lib/types/meals'
+import { SHOPPING_CATEGORIES, SHOPPING_CATEGORY_EMOJIS } from '@/lib/types/meals'
 
 interface ShoppingListProps {
   items: ShoppingListItem[]
@@ -68,20 +68,20 @@ export function ShoppingList({ items: initialItems, mealPlanId }: ShoppingListPr
   return (
     <div className="space-y-4">
       {/* Progress */}
-      <Card>
+      <Card className="warm-shadow-sm">
         <CardContent className="pt-6">
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2">
-              <ShoppingCart className="h-4 w-4 text-slate-500" />
-              <span className="font-medium text-slate-700">
+              <ShoppingCart className="h-4 w-4 text-meals-highlight" />
+              <span className="font-medium text-foreground">
                 {checkedCount} von {totalCount} erledigt
               </span>
             </div>
-            <span className="text-slate-500">{progress}%</span>
+            <span className="text-muted-foreground">{progress}%</span>
           </div>
-          <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-100">
+          <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-meals-surface">
             <div
-              className="h-full rounded-full bg-emerald-500 transition-all duration-300"
+              className="h-full rounded-full bg-gradient-to-r from-meals-highlight to-meals-success transition-all duration-500 ease-out"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -94,10 +94,10 @@ export function ShoppingList({ items: initialItems, mealPlanId }: ShoppingListPr
           type="text"
           value={newItem}
           onChange={e => setNewItem(e.target.value)}
-          className="flex h-9 flex-1 rounded-md border border-slate-200 bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
+          className="flex h-9 flex-1 rounded-xl border border-border bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-meals-highlight/30"
           placeholder="Zutat hinzufügen..."
         />
-        <Button type="submit" size="sm" disabled={!newItem.trim()}>
+        <Button type="submit" size="sm" disabled={!newItem.trim()} className="rounded-xl">
           <Plus className="mr-1 h-4 w-4" />
           Hinzufügen
         </Button>
@@ -109,13 +109,14 @@ export function ShoppingList({ items: initialItems, mealPlanId }: ShoppingListPr
         const categoryChecked = categoryItems.filter(i => i.checked).length
 
         return (
-          <Card key={category}>
+          <Card key={category} className="warm-shadow-sm">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-medium text-slate-600">
+                <CardTitle className="text-sm font-medium text-foreground/70">
+                  <span className="mr-1.5">{SHOPPING_CATEGORY_EMOJIS[category] ?? '🛒'}</span>
                   {category}
                 </CardTitle>
-                <span className="text-xs text-slate-400">
+                <span className="text-xs text-muted-foreground/60">
                   {categoryChecked}/{categoryItems.length}
                 </span>
               </div>
@@ -125,7 +126,7 @@ export function ShoppingList({ items: initialItems, mealPlanId }: ShoppingListPr
                 <div
                   key={item.id}
                   className={cn(
-                    'flex items-center gap-3 rounded-md px-2 py-1.5 transition-colors',
+                    'flex items-center gap-3 rounded-xl px-2 py-1.5 transition-all',
                     item.checked && 'opacity-50'
                   )}
                 >
@@ -133,17 +134,17 @@ export function ShoppingList({ items: initialItems, mealPlanId }: ShoppingListPr
                     type="button"
                     onClick={() => handleToggle(item.id)}
                     className={cn(
-                      'flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border transition-colors',
+                      'flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border transition-all',
                       item.checked
-                        ? 'border-emerald-500 bg-emerald-500 text-white'
-                        : 'border-slate-300 hover:border-slate-400'
+                        ? 'border-meals-success bg-meals-success text-white scale-110'
+                        : 'border-muted-foreground/30 hover:border-meals-highlight/50'
                     )}
                   >
                     {item.checked && <Check className="h-3 w-3" />}
                   </button>
                   <span className={cn(
                     'flex-1 text-sm',
-                    item.checked && 'line-through text-slate-400'
+                    item.checked && 'line-through text-muted-foreground/60'
                   )}>
                     {item.quantity && item.unit
                       ? `${item.quantity} ${item.unit} ${item.ingredient}`
@@ -154,7 +155,7 @@ export function ShoppingList({ items: initialItems, mealPlanId }: ShoppingListPr
                   <button
                     type="button"
                     onClick={() => handleRemove(item.id)}
-                    className="text-slate-300 hover:text-red-500 transition-colors"
+                    className="text-muted-foreground/40 hover:text-destructive transition-colors"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
@@ -167,8 +168,10 @@ export function ShoppingList({ items: initialItems, mealPlanId }: ShoppingListPr
 
       {totalCount === 0 && (
         <div className="py-12 text-center">
-          <ShoppingCart className="mx-auto h-12 w-12 text-slate-200" />
-          <p className="mt-4 text-sm text-slate-400">Noch keine Einkaufsliste erstellt</p>
+          <span className="text-5xl">🛒</span>
+          <p className="mt-4 text-sm text-muted-foreground">
+            Noch keine Einkaufsliste — starte mit der Wochenplanung!
+          </p>
         </div>
       )}
     </div>

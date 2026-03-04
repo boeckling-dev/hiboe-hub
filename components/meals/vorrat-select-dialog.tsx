@@ -63,7 +63,7 @@ export function VorratSelectDialog({
       <CardHeader className="relative pb-3">
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 text-slate-400 hover:text-slate-600"
+          className="absolute right-4 top-4 text-muted-foreground/60 hover:text-foreground/70"
         >
           <X className="h-4 w-4" />
         </button>
@@ -90,12 +90,12 @@ export function VorratSelectDialog({
 
         {/* Custom input */}
         <div>
-          <label className="text-xs font-medium text-slate-500">Oder eigene Beschreibung</label>
+          <label className="text-xs font-medium text-muted-foreground">Oder eigene Beschreibung</label>
           <input
             type="text"
             value={vorratNote}
             onChange={e => setVorratNote(e.target.value)}
-            className="mt-1 flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
+            className="mt-1 flex h-9 w-full rounded-md border border-border bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-meals-highlight/30"
             placeholder="Was holst du aus dem Vorrat?"
           />
         </div>

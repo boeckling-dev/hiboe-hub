@@ -250,9 +250,9 @@ export async function generateWeeklyMealPlan(context: {
   }
 
   return {
-    weekSummary: result.weekSummary,
-    shoppingEstimate: result.shoppingEstimate,
-    suggestions: result.suggestions,
+    weekSummary: result.weekSummary ?? '',
+    shoppingEstimate: result.shoppingEstimate ?? '',
+    suggestions: result.suggestions ?? [],
   }
 }
 

@@ -10,8 +10,10 @@ export default function DashboardLayout({
   return (
     <div className="flex min-h-screen flex-col">
       {/* Top bar — mobile only */}
-      <header className="flex h-14 items-center justify-between border-b bg-white px-4 lg:hidden">
-        <span className="font-semibold text-slate-900">Family Hub</span>
+      <header className="flex h-14 items-center justify-between border-b bg-card px-4 lg:hidden">
+        <span className="font-semibold text-foreground">
+          <span className="mr-1.5">🏠</span>Family Hub
+        </span>
         <div className="flex items-center gap-3">
           <UserButton afterSignOutUrl="/sign-in" />
           <MobileNav />
@@ -20,9 +22,11 @@ export default function DashboardLayout({
 
       <div className="flex flex-1">
         {/* Sidebar — desktop only */}
-        <aside className="hidden w-60 flex-col border-r bg-slate-50 lg:flex">
+        <aside className="hidden w-60 flex-col border-r bg-sidebar lg:flex">
           <div className="flex h-14 items-center border-b px-4">
-            <span className="font-semibold text-slate-900">Family Hub</span>
+            <span className="font-semibold text-foreground">
+              <span className="mr-1.5">🏠</span>Family Hub
+            </span>
           </div>
           <SideNav />
           <div className="mt-auto p-4">
