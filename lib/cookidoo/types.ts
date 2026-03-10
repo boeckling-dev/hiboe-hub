@@ -53,6 +53,7 @@ export interface CookidooCollection {
   id: string
   name: string
   recipeCount: number
+  listType: 'custom' | 'managed'
 }
 
 /** Result of a Cookidoo connection test. */

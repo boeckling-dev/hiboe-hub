@@ -52,12 +52,12 @@ export function CookidooImport() {
     setLoadingCollections(false)
   }
 
-  async function handleSelectCollection(collectionId: string) {
+  async function handleSelectCollection(collectionId: string, listType: 'custom' | 'managed' = 'custom') {
     setActiveCollection(collectionId)
     setSearching(true)
     setError(null)
 
-    const result = await getCookidooCollectionRecipes(collectionId)
+    const result = await getCookidooCollectionRecipes(collectionId, listType)
     if (result.success) {
       setRecipes(result.data)
     } else {
@@ -148,7 +148,7 @@ export function CookidooImport() {
                   key={collection.id}
                   variant={activeCollection === collection.id ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => handleSelectCollection(collection.id)}
+                  onClick={() => handleSelectCollection(collection.id, collection.listType)}
                   className="rounded-full"
                 >
                   {collection.name} ({collection.recipeCount})

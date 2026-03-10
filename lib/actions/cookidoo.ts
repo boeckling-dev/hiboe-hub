@@ -150,10 +150,11 @@ export async function getCookidooCollections(): Promise<ActionResult<CookidooCol
  */
 export async function getCookidooCollectionRecipes(
   collectionId: string,
+  listType: 'custom' | 'managed' = 'custom',
 ): Promise<ActionResult<CookidooRecipe[]>> {
   try {
     const client = await createAuthenticatedClient()
-    const results = await client.getCollectionRecipes(collectionId)
+    const results = await client.getCollectionRecipes(collectionId, listType)
     return { success: true, data: results }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)

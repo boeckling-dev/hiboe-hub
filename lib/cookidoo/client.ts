@@ -131,31 +131,50 @@ export class CookidooClient {
   }
 
   /**
-   * Get the user's recipe collections (custom lists).
+   * Get the user's recipe collections (both custom and managed/favorites).
    */
   async getCollections(): Promise<CookidooCollection[]> {
-    const data = await this.request<{ collections?: CookidooCollectionRaw[] }>(
-      `/organize/${LANGUAGE}/api/custom-list`,
-      'GET',
-    )
+    // Fetch both custom lists and managed lists (Merkliste/Favoriten) in parallel
+    const [customData, managedData] = await Promise.all([
+      this.request<CookidooCollectionsResponse>(
+        `/organize/${LANGUAGE}/api/custom-list`,
+        'GET',
+      ).catch(() => null),
+      this.request<CookidooCollectionsResponse>(
+        `/organize/${LANGUAGE}/api/managed-list`,
+        'GET',
+      ).catch(() => null),
+    ])
 
-    return (data.collections ?? []).map((c) => ({
+    const mapCollection = (listType: 'custom' | 'managed') => (c: CookidooCollectionRaw): CookidooCollection => ({
       id: c.id ?? c.collectionId ?? '',
       name: c.name ?? c.title ?? 'Unbenannt',
-      recipeCount: c.recipeCount ?? c.totalRecipes ?? 0,
-    }))
+      recipeCount: c.recipeCount ?? c.totalRecipes ?? c.recipesCount ?? 0,
+      listType,
+    })
+
+    const custom = extractCollections(customData).map(mapCollection('custom'))
+    const managed = extractCollections(managedData).map(mapCollection('managed'))
+
+    return [...managed, ...custom]
   }
 
   /**
    * Get recipes from a specific collection.
+   * @param listType - 'custom' for user-created lists, 'managed' for Merkliste/favorites
    */
-  async getCollectionRecipes(collectionId: string): Promise<CookidooRecipe[]> {
-    const data = await this.request<{ recipes?: CookidooRecipeListItem[] }>(
-      `/organize/${LANGUAGE}/api/custom-list/${collectionId}`,
+  async getCollectionRecipes(
+    collectionId: string,
+    listType: 'custom' | 'managed' = 'custom',
+  ): Promise<CookidooRecipe[]> {
+    const listPath = listType === 'managed' ? 'managed-list' : 'custom-list'
+    const data = await this.request<CookidooCollectionRecipesResponse>(
+      `/organize/${LANGUAGE}/api/${listPath}/${collectionId}`,
       'GET',
     )
 
-    return (data.recipes ?? []).map(mapListItemToRecipe)
+    const recipes = extractRecipesFromResponse(data)
+    return recipes.map(mapListItemToRecipe)
   }
 
   /**
@@ -343,7 +362,21 @@ interface CookidooCollectionRaw {
   name?: string
   title?: string
   recipeCount?: number
+  recipesCount?: number
   totalRecipes?: number
+}
+
+// The API may return collections in different wrapper shapes
+type CookidooCollectionsResponse = {
+  collections?: CookidooCollectionRaw[]
+  customCollections?: CookidooCollectionRaw[]
+  managedCollections?: CookidooCollectionRaw[]
+} | CookidooCollectionRaw[]
+
+function extractCollections(data: CookidooCollectionsResponse | null): CookidooCollectionRaw[] {
+  if (!data) return []
+  if (Array.isArray(data)) return data
+  return data.collections ?? data.customCollections ?? data.managedCollections ?? []
 }
 
 interface CookidooRecipeDetailRaw {
@@ -361,6 +394,17 @@ interface CookidooRecipeDetailRaw {
   steps?: Array<{ type?: string; text?: string; description?: string }>
   tools?: string[]
   hints?: string
+}
+
+// The API may return recipes in different wrapper shapes
+type CookidooCollectionRecipesResponse = {
+  recipes?: CookidooRecipeListItem[]
+  recipeList?: CookidooRecipeListItem[]
+} | CookidooRecipeListItem[]
+
+function extractRecipesFromResponse(data: CookidooCollectionRecipesResponse): CookidooRecipeListItem[] {
+  if (Array.isArray(data)) return data
+  return data.recipes ?? data.recipeList ?? []
 }
 
 function mapListItemToRecipe(item: CookidooRecipeListItem): CookidooRecipe {
