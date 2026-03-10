@@ -28,11 +28,11 @@ export function PlanningStepIndicator({
                 {/* Circle */}
                 <div
                   className={cn(
-                    'flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold transition-all',
+                    'flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-display font-bold transition-all',
                     isCompleted &&
                       'bg-meals-success text-white',
                     isCurrent &&
-                      'bg-meals-highlight text-white ring-2 ring-meals-highlight/20 ring-offset-2 warm-shadow-sm scale-110',
+                      'bg-foreground text-white ring-2 ring-foreground/20 ring-offset-2 warm-shadow-sm scale-110',
                     isFuture &&
                       'border-2 border-border bg-card text-muted-foreground'
                   )}
@@ -47,7 +47,7 @@ export function PlanningStepIndicator({
                 {/* Label */}
                 <span
                   className={cn(
-                    'text-xs font-medium whitespace-nowrap',
+                    'text-xs font-display font-semibold whitespace-nowrap',
                     isCurrent && 'text-foreground',
                     isCompleted && 'text-foreground/70',
                     isFuture && 'text-muted-foreground/60'
@@ -61,7 +61,7 @@ export function PlanningStepIndicator({
               {index < steps.length - 1 && (
                 <div
                   className={cn(
-                    'mx-2 mt-[-1.25rem] h-px flex-1',
+                    'mx-2 mt-[-1.25rem] h-0.5 flex-1',
                     index < currentStep ? 'bg-meals-success' : 'bg-border'
                   )}
                 />
@@ -81,7 +81,7 @@ export function PlanningStepIndicator({
               className={cn(
                 'h-2 w-2 rounded-full transition-all',
                 index < currentStep && 'bg-meals-success',
-                index === currentStep && 'bg-meals-highlight h-2.5 w-2.5',
+                index === currentStep && 'bg-foreground h-2.5 w-2.5',
                 index > currentStep && 'bg-border'
               )}
             />
@@ -89,7 +89,7 @@ export function PlanningStepIndicator({
         </div>
 
         {/* Current step label */}
-        <span className="text-sm font-semibold text-foreground">
+        <span className="text-sm font-display font-bold text-foreground">
           {steps[currentStep]}
         </span>
 

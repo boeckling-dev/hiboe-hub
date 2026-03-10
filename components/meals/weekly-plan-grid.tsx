@@ -71,21 +71,21 @@ export function WeeklyPlanGrid({
               <div
                 key={day}
                 className={cn(
-                  'rounded-xl px-2 py-2 text-center transition-all',
+                  'rounded-2xl px-2 py-2.5 text-center transition-all',
                   isToday
-                    ? 'bg-meals-highlight-soft ring-2 ring-meals-highlight/30 warm-shadow-sm'
+                    ? 'bg-foreground text-white warm-shadow-sm'
                     : DAY_BG[day]
                 )}
               >
                 <span className="text-base">{DAY_EMOJIS[day]}</span>
                 <p className={cn(
-                  'text-sm font-semibold',
-                  isToday ? 'text-meals-highlight' : 'text-foreground/70'
+                  'text-sm font-display font-bold',
+                  isToday ? 'text-white' : 'text-foreground/70'
                 )}>
                   {DAY_LABELS_SHORT[day]}
                 </p>
                 {isToday && (
-                  <span className="text-[10px] font-medium text-meals-highlight">
+                  <span className="text-[10px] font-medium text-white/80">
                     Heute
                   </span>
                 )}
@@ -101,7 +101,7 @@ export function WeeklyPlanGrid({
                 return (
                   <div key={`${day}-${mealType}`} className="min-h-20">
                     {day === 'mo' && (
-                      <div className="mb-1.5 flex items-center gap-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                      <div className="mb-1.5 flex items-center gap-1 text-[10px] font-display font-semibold uppercase tracking-wider text-muted-foreground">
                         <span>{MEAL_TYPE_EMOJIS[mealType]}</span>
                         {MEAL_TYPE_LABELS[mealType]}
                       </div>
@@ -123,7 +123,7 @@ export function WeeklyPlanGrid({
       {/* ── Mobile: Single day with tab switching ── */}
       <div className="block lg:hidden">
         {/* Day tabs — pill-style */}
-        <div className="mb-4 flex gap-1.5 overflow-x-auto p-1">
+        <div className="mb-5 flex gap-1.5 overflow-x-auto p-1">
           {DAYS.map((day) => {
             const isToday = day === today
             return (
@@ -131,9 +131,10 @@ export function WeeklyPlanGrid({
                 key={day}
                 onClick={() => setActiveDay(day)}
                 className={cn(
-                  'flex flex-col items-center gap-0.5 rounded-2xl px-3 py-2 text-sm font-medium transition-all',
+                  'flex flex-col items-center gap-0.5 rounded-full px-3.5 py-2.5 text-sm transition-all',
+                  'font-display font-bold',
                   activeDay === day
-                    ? 'bg-meals-highlight text-white warm-shadow-sm scale-105'
+                    ? 'bg-foreground text-white warm-shadow-sm scale-105'
                     : isToday
                       ? 'bg-meals-highlight-soft text-meals-highlight'
                       : 'text-muted-foreground hover:bg-muted'
@@ -147,18 +148,18 @@ export function WeeklyPlanGrid({
         </div>
 
         {/* Active day heading */}
-        <h3 className="mb-3 flex items-center gap-2 text-base font-semibold">
+        <h3 className="mb-4 flex items-center gap-2 font-display font-bold text-2xl text-foreground">
           <span>{DAY_EMOJIS[activeDay]}</span>
           {DAY_LABELS[activeDay]}
         </h3>
 
         {/* Meal slots for active day */}
-        <div className="space-y-3">
+        <div className="space-y-4">
           {MEAL_TYPES.map((mealType) => {
             const entry = getEntry(plan, activeDay, mealType)
             return (
               <div key={mealType}>
-                <div className="mb-1 flex items-center gap-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <div className="mb-1.5 flex items-center gap-1 text-xs font-display font-semibold uppercase tracking-wider text-muted-foreground">
                   <span>{MEAL_TYPE_EMOJIS[mealType]}</span>
                   {MEAL_TYPE_LABELS[mealType]}
                 </div>
