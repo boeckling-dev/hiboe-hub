@@ -122,12 +122,16 @@ export class CookidooClient {
       language: LANGUAGE,
     })
 
-    const data = await this.request<{ recipes?: CookidooRecipeListItem[] }>(
+    const data = await this.request<Record<string, unknown>>(
       `/search/${LANGUAGE}?${params}`,
       'GET',
     )
 
-    return (data.recipes ?? []).map(mapListItemToRecipe)
+    console.log('[Cookidoo] search raw keys:', Object.keys(data))
+    console.log('[Cookidoo] search raw:', JSON.stringify(data).slice(0, 500))
+
+    const recipes = extractRecipesFromResponse(data as CookidooCollectionRecipesResponse)
+    return recipes.map(mapListItemToRecipe)
   }
 
   /**
@@ -179,12 +183,15 @@ export class CookidooClient {
     listType: 'custom' | 'managed' = 'custom',
   ): Promise<CookidooRecipe[]> {
     const listPath = listType === 'managed' ? 'managed-list' : 'custom-list'
-    const data = await this.request<CookidooCollectionRecipesResponse>(
+    const data = await this.request<Record<string, unknown>>(
       `/organize/${LANGUAGE}/api/${listPath}/${collectionId}`,
       'GET',
     )
 
-    const recipes = extractRecipesFromResponse(data)
+    console.log('[Cookidoo] collection-recipes raw keys:', Object.keys(data))
+    console.log('[Cookidoo] collection-recipes raw:', JSON.stringify(data).slice(0, 500))
+
+    const recipes = extractRecipesFromResponse(data as CookidooCollectionRecipesResponse)
     return recipes.map(mapListItemToRecipe)
   }
 
