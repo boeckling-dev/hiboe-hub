@@ -10,93 +10,104 @@ import type {
 
 // ─── Configuration ──────────────────────────────────────────────────────────
 
-const BASE_URL = 'https://cookidoo.de'
-const REQUEST_TIMEOUT_MS = 10_000
+/** Cookidoo uses Vorwerk's mobile API with OAuth2 password grant. */
+const API_ENDPOINT = 'https://de.tmmobile.vorwerk-digital.com'
+const TOKEN_PATH = 'ciam/auth/token'
+const LANGUAGE = 'de-DE'
+
+const COOKIDOO_CLIENT_ID = 'kupferwerk-client-nwot'
+const COOKIDOO_CLIENT_SECRET = 'Ls50ON1woySqus1dCdJge'
+const COOKIDOO_BASIC_AUTH = `Basic ${btoa(`${COOKIDOO_CLIENT_ID}:${COOKIDOO_CLIENT_SECRET}`)}`
+
+const REQUEST_TIMEOUT_MS = 15_000
 const MAX_RETRIES = 2
 
 // ─── Client ─────────────────────────────────────────────────────────────────
 
 /**
- * TypeScript client for the Cookidoo REST API (reverse-engineered).
+ * TypeScript client for the Cookidoo API (Vorwerk Thermomix).
  *
- * Authentication uses the `_oauth2_proxy` cookie (JWT token).
- * Based on the cookiput project: https://github.com/croeer/cookiput
- * and the cookidoo-api Python library: https://github.com/miaucl/cookidoo-api
+ * Authentication uses OAuth2 password grant via the Vorwerk CIAM token endpoint.
+ * Based on: https://github.com/miaucl/cookidoo-api
  */
 export class CookidooClient {
-  private jwtToken: string | null = null
+  private accessToken: string | null = null
 
-  private get headers(): Record<string, string> {
+  private get apiHeaders(): Record<string, string> {
+    if (!this.accessToken) throw new Error('Nicht bei Cookidoo angemeldet')
     return {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
-      'User-Agent': 'Mozilla/5.0 (compatible; HiboeHub/1.0)',
+      'Authorization': `Bearer ${this.accessToken}`,
+      'Cookie': `v-token=${this.accessToken}`,
     }
-  }
-
-  private get cookieHeader(): string {
-    if (!this.jwtToken) throw new Error('Nicht bei Cookidoo angemeldet')
-    return `_oauth2_proxy=${this.jwtToken}`
   }
 
   // ─── Auth ───────────────────────────────────────────────────────────────
 
   /**
-   * Login to Cookidoo with email and password.
-   * Obtains the JWT token from the _oauth2_proxy cookie.
+   * Login to Cookidoo with email and password via OAuth2 password grant.
    */
   async login(credentials: CookidooCredentials): Promise<void> {
     const { email, password } = credentials
 
-    // Cookidoo uses OAuth2 proxy for auth. We attempt to login via
-    // the sign-in endpoint and capture the _oauth2_proxy cookie.
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
 
     try {
-      const response = await fetch(`${BASE_URL}/sign-in`, {
+      const body = new URLSearchParams({
+        grant_type: 'password',
+        username: email,
+        password: password,
+      })
+
+      const response = await fetch(`${API_ENDPOINT}/${TOKEN_PATH}`, {
         method: 'POST',
         headers: {
+          'Accept': 'application/json',
           'Content-Type': 'application/x-www-form-urlencoded',
-          'User-Agent': 'Mozilla/5.0 (compatible; HiboeHub/1.0)',
+          'Authorization': COOKIDOO_BASIC_AUTH,
         },
-        body: new URLSearchParams({ email, password }),
-        redirect: 'manual', // Don't follow redirects, we need the cookies
+        body: body.toString(),
         signal: controller.signal,
       })
 
-      // Extract the _oauth2_proxy cookie from Set-Cookie headers
-      const setCookie = response.headers.get('set-cookie') ?? ''
-      const match = setCookie.match(/_oauth2_proxy=([^;]+)/)
-
-      if (match) {
-        this.jwtToken = match[1]
-        return
-      }
-
-      // If no cookie was returned, auth may have failed
-      if (response.status >= 400) {
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 400) {
+          throw new Error('Cookidoo-Login fehlgeschlagen: E-Mail oder Passwort falsch')
+        }
         throw new Error(`Cookidoo-Login fehlgeschlagen (Status ${response.status})`)
       }
 
-      throw new Error('Cookidoo-Login fehlgeschlagen: Kein Auth-Token erhalten')
+      const data = await response.json() as {
+        access_token?: string
+        refresh_token?: string
+        token_type?: string
+        expires_in?: number
+      }
+
+      if (!data.access_token) {
+        throw new Error('Cookidoo-Login fehlgeschlagen: Kein Access-Token erhalten')
+      }
+
+      this.accessToken = data.access_token
     } finally {
       clearTimeout(timeout)
     }
   }
 
   /**
-   * Set a JWT token directly (e.g. from stored credentials).
+   * Set an access token directly (e.g. from stored session).
    */
   setToken(token: string): void {
-    this.jwtToken = token
+    this.accessToken = token
   }
 
   /**
    * Check if the client has a valid token.
    */
   isAuthenticated(): boolean {
-    return this.jwtToken !== null
+    return this.accessToken !== null
   }
 
   // ─── Read Operations ──────────────────────────────────────────────────
@@ -108,11 +119,11 @@ export class CookidooClient {
     const params = new URLSearchParams({
       query,
       country: 'de',
-      language: 'de-DE',
+      language: LANGUAGE,
     })
 
     const data = await this.request<{ recipes?: CookidooRecipeListItem[] }>(
-      `/search/de-DE?${params}`,
+      `/search/${LANGUAGE}?${params}`,
       'GET',
     )
 
@@ -120,11 +131,11 @@ export class CookidooClient {
   }
 
   /**
-   * Get the user's recipe collections (favorites, custom folders).
+   * Get the user's recipe collections (custom lists).
    */
   async getCollections(): Promise<CookidooCollection[]> {
     const data = await this.request<{ collections?: CookidooCollectionRaw[] }>(
-      '/organize/de-DE/collections',
+      `/organize/${LANGUAGE}/api/custom-list`,
       'GET',
     )
 
@@ -140,7 +151,7 @@ export class CookidooClient {
    */
   async getCollectionRecipes(collectionId: string): Promise<CookidooRecipe[]> {
     const data = await this.request<{ recipes?: CookidooRecipeListItem[] }>(
-      `/organize/de-DE/collections/${collectionId}/recipes`,
+      `/organize/${LANGUAGE}/api/custom-list/${collectionId}`,
       'GET',
     )
 
@@ -152,7 +163,7 @@ export class CookidooClient {
    */
   async getRecipeDetails(recipeId: string): Promise<CookidooRecipeDetail> {
     const data = await this.request<CookidooRecipeDetailRaw>(
-      `/recipes/de-DE/${recipeId}`,
+      `/recipes/recipe/${LANGUAGE}/${recipeId}`,
       'GET',
     )
 
@@ -185,7 +196,7 @@ export class CookidooClient {
    */
   async createRecipe(name: string): Promise<string> {
     const data = await this.request<{ recipeId: string }>(
-      '/created-recipes/de-DE',
+      `/created-recipes/${LANGUAGE}`,
       'POST',
       { recipeName: name },
     )
@@ -202,7 +213,7 @@ export class CookidooClient {
    */
   async updateIngredients(recipeId: string, ingredients: CookidooIngredient[]): Promise<void> {
     await this.request(
-      `/created-recipes/de-DE/${recipeId}`,
+      `/created-recipes/${LANGUAGE}/${recipeId}`,
       'PATCH',
       { ingredients },
     )
@@ -213,7 +224,7 @@ export class CookidooClient {
    */
   async updateInstructions(recipeId: string, instructions: CookidooStep[]): Promise<void> {
     await this.request(
-      `/created-recipes/de-DE/${recipeId}`,
+      `/created-recipes/${LANGUAGE}/${recipeId}`,
       'PATCH',
       { instructions },
     )
@@ -224,7 +235,7 @@ export class CookidooClient {
    */
   async updateMetadata(recipeId: string, meta: CookidooMeta): Promise<void> {
     await this.request(
-      `/created-recipes/de-DE/${recipeId}`,
+      `/created-recipes/${LANGUAGE}/${recipeId}`,
       'PATCH',
       meta,
     )
@@ -269,12 +280,9 @@ export class CookidooClient {
       const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
 
       try {
-        const response = await fetch(`${BASE_URL}${path}`, {
+        const response = await fetch(`${API_ENDPOINT}${path}`, {
           method,
-          headers: {
-            ...this.headers,
-            'Cookie': this.cookieHeader,
-          },
+          headers: this.apiHeaders,
           body: body ? JSON.stringify(body) : undefined,
           signal: controller.signal,
         })
