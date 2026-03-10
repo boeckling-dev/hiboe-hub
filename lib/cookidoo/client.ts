@@ -379,6 +379,8 @@ interface CookidooCollectionRaw {
 
 // The API may return collections in different wrapper shapes
 type CookidooCollectionsResponse = {
+  customlists?: CookidooCollectionRaw[]
+  managedlists?: CookidooCollectionRaw[]
   collections?: CookidooCollectionRaw[]
   customCollections?: CookidooCollectionRaw[]
   managedCollections?: CookidooCollectionRaw[]
@@ -387,7 +389,7 @@ type CookidooCollectionsResponse = {
 function extractCollections(data: CookidooCollectionsResponse | null): CookidooCollectionRaw[] {
   if (!data) return []
   if (Array.isArray(data)) return data
-  return data.collections ?? data.customCollections ?? data.managedCollections ?? []
+  return data.customlists ?? data.managedlists ?? data.collections ?? data.customCollections ?? data.managedCollections ?? []
 }
 
 interface CookidooRecipeDetailRaw {
