@@ -130,8 +130,19 @@ export class CookidooClient {
     console.log('[Cookidoo] search raw keys:', Object.keys(data))
     console.log('[Cookidoo] search raw:', JSON.stringify(data).slice(0, 500))
 
-    const recipes = extractRecipesFromResponse(data as CookidooCollectionRecipesResponse)
-    return recipes.map(mapListItemToRecipe)
+    // Try to extract recipe list from various possible response shapes
+    const recipes = extractRecipesFromSearchResponse(data)
+    if (recipes.length > 0) {
+      return recipes.map(mapListItemToRecipe)
+    }
+
+    // If the response only contains recipe IDs (like collections), fetch summaries
+    const recipeIds = (data.recipeIds as string[]) ?? []
+    if (recipeIds.length > 0) {
+      return this.fetchRecipeSummaries(recipeIds)
+    }
+
+    return []
   }
 
   /**
@@ -176,6 +187,7 @@ export class CookidooClient {
 
   /**
    * Get recipes from a specific collection.
+   * The API only returns recipe IDs, so we fetch summaries in parallel.
    * @param listType - 'custom' for user-created lists, 'managed' for Merkliste/favorites
    */
   async getCollectionRecipes(
@@ -188,11 +200,52 @@ export class CookidooClient {
       'GET',
     )
 
-    console.log('[Cookidoo] collection-recipes raw keys:', Object.keys(data))
-    console.log('[Cookidoo] collection-recipes raw:', JSON.stringify(data).slice(0, 500))
+    // The API returns { recipeIds: ["r762353", ...], ... } — just IDs, no recipe objects
+    const recipeIds = (data.recipeIds as string[]) ?? []
+    if (recipeIds.length === 0) return []
 
-    const recipes = extractRecipesFromResponse(data as CookidooCollectionRecipesResponse)
-    return recipes.map(mapListItemToRecipe)
+    return this.fetchRecipeSummaries(recipeIds)
+  }
+
+  /**
+   * Fetch basic recipe info for multiple IDs in parallel (with concurrency limit).
+   */
+  private async fetchRecipeSummaries(recipeIds: string[]): Promise<CookidooRecipe[]> {
+    const CONCURRENCY = 5
+    const results: CookidooRecipe[] = []
+
+    for (let i = 0; i < recipeIds.length; i += CONCURRENCY) {
+      const batch = recipeIds.slice(i, i + CONCURRENCY)
+      const batchResults = await Promise.allSettled(
+        batch.map(async (id) => {
+          try {
+            const data = await this.request<CookidooRecipeDetailRaw>(
+              `/recipes/recipe/${LANGUAGE}/${id}`,
+              'GET',
+            )
+            return {
+              id,
+              name: data.name ?? data.title ?? id,
+              imageUrl: data.imageUrl ?? data.image?.url,
+              totalTime: data.totalTime,
+              prepTime: data.prepTime,
+              servings: data.yield?.value ?? data.servings,
+            } satisfies CookidooRecipe
+          } catch {
+            // Return minimal recipe if details can't be fetched
+            return { id, name: id } satisfies CookidooRecipe
+          }
+        }),
+      )
+
+      for (const result of batchResults) {
+        if (result.status === 'fulfilled') {
+          results.push(result.value)
+        }
+      }
+    }
+
+    return results
   }
 
   /**
@@ -425,6 +478,24 @@ type CookidooCollectionRecipesResponse = {
 function extractRecipesFromResponse(data: CookidooCollectionRecipesResponse): CookidooRecipeListItem[] {
   if (Array.isArray(data)) return data
   return data.recipes ?? data.recipeList ?? []
+}
+
+/**
+ * Extract recipes from search response, trying multiple possible keys.
+ */
+function extractRecipesFromSearchResponse(data: Record<string, unknown>): CookidooRecipeListItem[] {
+  // Try common keys for search results
+  for (const key of ['recipes', 'recipeList', 'results', 'hits', 'searchResults', 'content', 'items']) {
+    const val = data[key]
+    if (Array.isArray(val) && val.length > 0 && typeof val[0] === 'object' && val[0] !== null) {
+      // Check if items look like recipe objects (have name/title and id)
+      const first = val[0] as Record<string, unknown>
+      if (first.name || first.title || first.id || first.recipeId) {
+        return val as CookidooRecipeListItem[]
+      }
+    }
+  }
+  return []
 }
 
 function mapListItemToRecipe(item: CookidooRecipeListItem): CookidooRecipe {
