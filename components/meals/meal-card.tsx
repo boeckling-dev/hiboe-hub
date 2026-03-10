@@ -9,6 +9,7 @@ import type { MealPlanEntryWithRecipe } from '@/lib/types/meals'
 
 import { CategoryIndicator } from './category-indicator'
 import { MealSourceBadge } from './meal-source-badge'
+import { FoodIconBubble } from './food-icon-bubble'
 
 interface MealCardProps {
   entry: MealPlanEntryWithRecipe
@@ -43,61 +44,71 @@ export function MealCard({
   return (
     <div
       className={cn(
-        'group relative rounded-2xl border p-3',
+        'group relative rounded-3xl border p-4',
         'transition-all duration-200 ease-out',
         'hover:scale-[1.02] hover:warm-shadow',
         colors.border,
         colors.bg
       )}
     >
-      {/* Header row: title + action buttons */}
-      <div className="flex items-start justify-between gap-1">
-        <p
-          className={cn(
-            'line-clamp-2 text-sm font-bold leading-snug',
-            colors.text
-          )}
+      {/* Header row: icon + title + action buttons */}
+      <div className="flex items-start gap-2.5">
+        <FoodIconBubble
           title={title}
-        >
-          {title}
-        </p>
+          tags={hasRecipe ? (entry.recipe!.tags ?? undefined) : undefined}
+          size="sm"
+        />
 
-        {editable && (
-          <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-            {onSwap && (
-              <Button
-                variant="ghost"
-                size="icon-xs"
-                onClick={onSwap}
-                aria-label="Mahlzeit tauschen"
-              >
-                <Shuffle className="size-3" />
-              </Button>
-            )}
-            {onRemove && (
-              <Button
-                variant="ghost"
-                size="icon-xs"
-                onClick={onRemove}
-                aria-label="Mahlzeit entfernen"
-                className="text-destructive hover:text-destructive"
-              >
-                <Trash2 className="size-3" />
-              </Button>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-1">
+            <p
+              className={cn(
+                'line-clamp-2 text-sm font-display font-bold leading-snug',
+                colors.text
+              )}
+              title={title}
+            >
+              {title}
+            </p>
+
+            {editable && (
+              <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+                {onSwap && (
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    onClick={onSwap}
+                    aria-label="Mahlzeit tauschen"
+                  >
+                    <Shuffle className="size-3" />
+                  </Button>
+                )}
+                {onRemove && (
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    onClick={onRemove}
+                    aria-label="Mahlzeit entfernen"
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="size-3" />
+                  </Button>
+                )}
+              </div>
             )}
           </div>
-        )}
-      </div>
 
-      {/* Meta row */}
-      <div className="mt-1.5 flex flex-wrap items-center gap-1">
-        <CategoryIndicator category={category} />
-        <MealSourceBadge source={entry.mealSource as 'rezept' | 'lieferservice' | 'vorrat'} />
+          {/* Meta row */}
+          <div className="mt-1.5 flex flex-wrap items-center gap-1">
+            <CategoryIndicator category={category} />
+            <MealSourceBadge source={entry.mealSource as 'rezept' | 'lieferservice' | 'vorrat'} />
+          </div>
+        </div>
       </div>
 
       {/* Prep time (only for recipes) */}
       {hasRecipe && entry.recipe!.prepTime && (
-        <div className="mt-1.5 flex items-center gap-1 text-[10px] text-muted-foreground">
+        <div className="mt-2 flex items-center gap-1 text-[10px] text-muted-foreground">
           <Clock className="size-3" />
           <span>{entry.recipe!.prepTime} Min.</span>
         </div>
@@ -117,7 +128,7 @@ export function MealCard({
           size="icon-xs"
           onClick={onRate}
           aria-label="Mahlzeit bewerten"
-          className="absolute right-1 bottom-1 opacity-0 transition-opacity group-hover:opacity-100"
+          className="absolute right-2 bottom-2 opacity-0 transition-opacity group-hover:opacity-100"
         >
           <Star className="size-3" />
         </Button>

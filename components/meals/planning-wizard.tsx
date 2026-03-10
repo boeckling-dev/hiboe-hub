@@ -352,7 +352,7 @@ export function PlanningWizard() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
+              <CardTitle className="flex items-center gap-2 font-display font-bold text-2xl">
                 <CalendarDays className="h-5 w-5" />
                 Wochenplanung
               </CardTitle>
@@ -363,7 +363,7 @@ export function PlanningWizard() {
                 <p className="text-sm text-muted-foreground">
                   Planung für die Woche
                 </p>
-                <p className="mt-1 text-lg font-semibold text-foreground">
+                <p className="mt-1 text-lg font-display font-bold text-foreground">
                   {formatDateRange(weekStartDate)}
                 </p>
               </div>
@@ -380,10 +380,10 @@ export function PlanningWizard() {
                       type="button"
                       onClick={() => toggleEatingOutDay(day)}
                       className={cn(
-                        'rounded-xl border px-3 py-2 text-sm font-medium transition-all',
+                        'rounded-full border px-4 py-2 text-sm font-display font-semibold transition-all',
                         eatingOutDays.includes(day)
-                          ? 'border-meals-highlight bg-meals-highlight text-white warm-shadow-sm'
-                          : 'border-border bg-card text-foreground/70 hover:border-meals-highlight/30 hover:bg-meals-highlight-soft/30'
+                          ? 'border-foreground bg-foreground text-white warm-shadow-sm'
+                          : 'border-border bg-card text-foreground/70 hover:border-foreground/30 hover:bg-muted'
                       )}
                     >
                       {DAY_LABELS_SHORT[day]}
@@ -430,7 +430,7 @@ export function PlanningWizard() {
 
           {/* Navigation */}
           <div className="flex justify-end">
-            <Button onClick={goNext}>
+            <Button onClick={goNext} className="rounded-full font-display font-semibold">
               Weiter
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
@@ -447,7 +447,7 @@ export function PlanningWizard() {
                 <ChefHat className="h-14 w-14 animate-bounce text-meals-highlight" />
                 <span className="absolute -right-2 -top-2 text-2xl animate-wiggle">✨</span>
               </div>
-              <p className="mt-4 text-lg font-bold text-foreground">
+              <p className="mt-4 text-lg font-display font-bold text-foreground">
                 Köchin KI rührt den Löffel...
               </p>
               <p className="mt-1 text-sm text-muted-foreground">
@@ -496,7 +496,7 @@ export function PlanningWizard() {
                   {acceptedIndices.size} von {(suggestions.suggestions ?? []).length}{' '}
                   Vorschlägen akzeptiert
                 </p>
-                <Button variant="outline" size="sm" onClick={acceptAll}>
+                <Button variant="outline" size="sm" onClick={acceptAll} className="rounded-full">
                   <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" />
                   Alle akzeptieren
                 </Button>
@@ -526,13 +526,14 @@ export function PlanningWizard() {
 
           {/* Navigation */}
           <div className="flex justify-between">
-            <Button variant="outline" onClick={goBack}>
+            <Button variant="outline" onClick={goBack} className="rounded-full">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Zurück
             </Button>
             <Button
               onClick={goNext}
               disabled={isGenerating || acceptedIndices.size === 0}
+              className="rounded-full font-display font-semibold"
             >
               Weiter
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -557,7 +558,7 @@ export function PlanningWizard() {
             <>
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">
+                  <CardTitle className="font-display font-bold text-xl">
                     Wochenplan anpassen
                   </CardTitle>
                 </CardHeader>
@@ -573,11 +574,11 @@ export function PlanningWizard() {
 
           {/* Navigation */}
           <div className="flex justify-between">
-            <Button variant="outline" onClick={goBack}>
+            <Button variant="outline" onClick={goBack} className="rounded-full">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Zurück
             </Button>
-            <Button onClick={goNext} disabled={isCreatingPlan || !plan}>
+            <Button onClick={goNext} disabled={isCreatingPlan || !plan} className="rounded-full font-display font-semibold">
               Weiter
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
@@ -603,11 +604,11 @@ export function PlanningWizard() {
 
           {/* Navigation */}
           <div className="flex justify-between">
-            <Button variant="outline" onClick={goBack}>
+            <Button variant="outline" onClick={goBack} className="rounded-full">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Zurück
             </Button>
-            <Button onClick={goNext} disabled={isLoadingShopping}>
+            <Button onClick={goNext} disabled={isLoadingShopping} className="rounded-full font-display font-semibold">
               Weiter
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
@@ -660,7 +661,7 @@ export function PlanningWizard() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
+              <CardTitle className="flex items-center gap-2 font-display font-bold text-xl">
                 {activated ? (
                   <PartyPopper className="h-5 w-5 text-amber-500" />
                 ) : (
@@ -686,7 +687,7 @@ export function PlanningWizard() {
                         <p className="text-xs text-muted-foreground">
                           Mahlzeiten
                         </p>
-                        <p className="text-2xl font-bold text-foreground">
+                        <p className="text-2xl font-display font-bold text-foreground">
                           {acceptedCount}
                         </p>
                       </div>
@@ -740,7 +741,7 @@ export function PlanningWizard() {
               <Button
                 onClick={handleActivate}
                 disabled={isActivating || !planId}
-                className="bg-meals-success hover:bg-meals-success/90 text-white rounded-xl warm-shadow-sm hover:warm-shadow transition-all"
+                className="bg-foreground hover:bg-foreground/90 text-white rounded-full px-8 py-3 font-display font-bold text-lg warm-shadow-sm hover:warm-shadow transition-all"
               >
                 {isActivating ? (
                   <>

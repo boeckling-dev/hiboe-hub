@@ -4,7 +4,7 @@ import { getRecipe } from '@/lib/actions/recipes'
 import { RecipeDetail } from '@/components/meals/recipe-detail'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { ArrowLeft, Pencil } from 'lucide-react'
+import { ArrowLeft, Pencil, Heart, Share2 } from 'lucide-react'
 import { DeleteRecipeButton } from './delete-recipe-button'
 
 interface RezeptDetailPageProps {
@@ -29,21 +29,26 @@ export default async function RezeptDetailPage({ params }: RezeptDetailPageProps
 
   return (
     <div className="space-y-6 pb-16 lg:pb-0">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      {/* Top bar — Dribbble-inspired */}
+      <div className="flex items-center justify-between">
         <Link
           href="/meals/rezepte"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground/80"
+          className="inline-flex items-center justify-center h-10 w-10 rounded-full border bg-card hover:bg-muted transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          Zurück zu Rezepte
         </Link>
 
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" asChild>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" className="rounded-full" asChild>
             <Link href={`/meals/rezepte/${recipe.id}/bearbeiten`}>
-              <Pencil className="mr-2 h-4 w-4" />
-              Bearbeiten
+              <Pencil className="h-4 w-4" />
             </Link>
+          </Button>
+          <Button variant="ghost" size="icon" className="rounded-full">
+            <Heart className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon" className="rounded-full">
+            <Share2 className="h-4 w-4" />
           </Button>
           <DeleteRecipeButton recipeId={recipe.id} />
         </div>

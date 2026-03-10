@@ -1,26 +1,14 @@
 import Link from 'next/link'
 import { Clock, ChefHat, Users } from 'lucide-react'
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import type { Recipe } from '@/lib/db/schema'
+import { FoodIconBubble } from './food-icon-bubble'
 
 const DIFFICULTY_LABELS: Record<string, string> = {
   easy: 'Einfach',
   medium: 'Mittel',
   hard: 'Anspruchsvoll',
-}
-
-const DIFFICULTY_COLORS: Record<string, string> = {
-  easy: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  medium: 'bg-amber-50 text-amber-700 border-amber-200',
-  hard: 'bg-red-50 text-red-700 border-red-200',
 }
 
 interface RecipeCardCompactProps {
@@ -34,73 +22,66 @@ export function RecipeCardCompact({ recipe }: RecipeCardCompactProps) {
 
   return (
     <Link href={`/meals/rezepte/${recipe.id}`} className="group block">
-      <Card
+      <div
         className={cn(
-          'transition-all hover:shadow-md',
+          'rounded-3xl border bg-card p-5 transition-all',
+          'hover:warm-shadow hover:scale-[1.02]',
           'group-focus-visible:ring-2 group-focus-visible:ring-ring'
         )}
       >
-        <CardHeader className="pb-0">
-          <CardTitle className="line-clamp-2 text-sm leading-snug">
-            {recipe.title}
-          </CardTitle>
-        </CardHeader>
+        {/* Icon bubble */}
+        <div className="mb-3">
+          <FoodIconBubble title={recipe.title} tags={tags} size="lg" />
+        </div>
 
-        <CardContent className="space-y-2">
-          {/* Tags */}
-          {tags.length > 0 && (
-            <div className="flex flex-wrap gap-1">
-              {tags.slice(0, 3).map((tag) => (
-                <Badge
-                  key={tag}
-                  variant="secondary"
-                  className="text-[10px] font-normal"
-                >
-                  {tag}
-                </Badge>
-              ))}
-              {tags.length > 3 && (
-                <Badge
-                  variant="secondary"
-                  className="text-[10px] font-normal"
-                >
-                  +{tags.length - 3}
-                </Badge>
-              )}
-            </div>
-          )}
+        {/* Title */}
+        <h3 className="font-display font-bold text-base leading-snug line-clamp-2 text-foreground">
+          {recipe.title}
+        </h3>
 
-          {/* Meta info */}
-          <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-            {totalTime > 0 && (
-              <span className="flex items-center gap-1">
-                <Clock className="size-3" />
-                {totalTime} Min.
-              </span>
-            )}
-
-            {difficulty && (
-              <Badge
-                variant="outline"
-                className={cn(
-                  'text-[10px] font-medium',
-                  DIFFICULTY_COLORS[difficulty]
-                )}
+        {/* Tags as pills */}
+        {tags.length > 0 && (
+          <div className="mt-2.5 flex flex-wrap gap-1.5">
+            {tags.slice(0, 3).map((tag) => (
+              <span
+                key={tag}
+                className="border rounded-full px-2.5 py-0.5 text-[11px] text-foreground/60"
               >
-                <ChefHat className="size-3" />
-                {DIFFICULTY_LABELS[difficulty] ?? difficulty}
-              </Badge>
-            )}
-
-            {recipe.servings && (
-              <span className="flex items-center gap-1">
-                <Users className="size-3" />
-                {recipe.servings} Port.
+                {tag}
+              </span>
+            ))}
+            {tags.length > 3 && (
+              <span className="border rounded-full px-2.5 py-0.5 text-[11px] text-foreground/60">
+                +{tags.length - 3}
               </span>
             )}
           </div>
-        </CardContent>
-      </Card>
+        )}
+
+        {/* Meta info as pills */}
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          {totalTime > 0 && (
+            <span className="inline-flex items-center gap-1 border rounded-full px-2.5 py-1">
+              <Clock className="size-3" />
+              {totalTime} Min.
+            </span>
+          )}
+
+          {difficulty && (
+            <span className="inline-flex items-center gap-1 border rounded-full px-2.5 py-1">
+              <ChefHat className="size-3" />
+              {DIFFICULTY_LABELS[difficulty] ?? difficulty}
+            </span>
+          )}
+
+          {recipe.servings && (
+            <span className="inline-flex items-center gap-1 border rounded-full px-2.5 py-1">
+              <Users className="size-3" />
+              {recipe.servings} Port.
+            </span>
+          )}
+        </div>
+      </div>
     </Link>
   )
 }
