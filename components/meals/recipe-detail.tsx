@@ -14,20 +14,20 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">{recipe.title}</h1>
+        <h1 className="text-2xl font-bold text-foreground">{recipe.title}</h1>
         {recipe.description && (
-          <p className="mt-2 text-slate-600">{recipe.description}</p>
+          <p className="mt-2 text-foreground/70">{recipe.description}</p>
         )}
       </div>
 
       {/* Meta info */}
-      <div className="flex flex-wrap gap-4 text-sm text-slate-600">
+      <div className="flex flex-wrap gap-4 text-sm text-foreground/70">
         {totalTime > 0 && (
           <div className="flex items-center gap-1.5">
             <Clock className="h-4 w-4" />
             <span>{totalTime} Min</span>
             {recipe.prepTime && recipe.cookTime ? (
-              <span className="text-slate-400">
+              <span className="text-muted-foreground/60">
                 ({recipe.prepTime} + {recipe.cookTime})
               </span>
             ) : null}
@@ -84,15 +84,15 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
               <ul className="space-y-2">
                 {recipe.ingredients.map((ing, idx) => (
                   <li key={idx} className="flex items-baseline gap-2 text-sm">
-                    <span className="font-medium text-slate-900">
+                    <span className="font-medium text-foreground">
                       {ing.quantity} {ing.unit}
                     </span>
-                    <span className="text-slate-600">{ing.name}</span>
+                    <span className="text-foreground/70">{ing.name}</span>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-slate-400">Keine Zutaten hinterlegt</p>
+              <p className="text-sm text-muted-foreground/60">Keine Zutaten hinterlegt</p>
             )}
           </CardContent>
         </Card>
@@ -107,15 +107,15 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
               <ol className="space-y-4">
                 {recipe.instructions.map(inst => (
                   <li key={inst.step} className="flex gap-3">
-                    <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-medium text-slate-600">
+                    <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-foreground/70">
                       {inst.step}
                     </span>
-                    <p className="text-sm text-slate-700 leading-relaxed">{inst.text}</p>
+                    <p className="text-sm text-foreground/80 leading-relaxed">{inst.text}</p>
                   </li>
                 ))}
               </ol>
             ) : (
-              <p className="text-sm text-slate-400">Keine Zubereitungsschritte hinterlegt</p>
+              <p className="text-sm text-muted-foreground/60">Keine Zubereitungsschritte hinterlegt</p>
             )}
           </CardContent>
         </Card>

@@ -53,18 +53,18 @@ export default async function PlanDetailPage({ params }: PlanDetailPageProps) {
         <div>
           <Link
             href="/meals"
-            className="mb-4 inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700"
+            className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground/80"
           >
             <ArrowLeft className="h-4 w-4" />
             Zurück zur Übersicht
           </Link>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-slate-900">Wochenplan</h1>
+            <h1 className="text-2xl font-bold text-foreground">Wochenplan</h1>
             <Badge variant={STATUS_VARIANTS[plan.status] ?? 'secondary'}>
               {STATUS_LABELS[plan.status] ?? plan.status}
             </Badge>
           </div>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             Woche ab {weekStart}
           </p>
         </div>

@@ -7,6 +7,12 @@ import { findRecentlyUsedRecipes } from '@/lib/db/queries/meal-plans'
 import { findRecentRatings } from '@/lib/db/queries/ratings'
 import type { WeekContext, AISuggestionSet, AISuggestion } from '@/lib/types/meals'
 
+// ─── Result Types ────────────────────────────────────────────────────────────
+
+type ActionResult<T> =
+  | { success: true; data: T }
+  | { success: false; error: string }
+
 // ─── Season & Month Helpers ──────────────────────────────────────────────────
 
 const GERMAN_MONTHS = [
@@ -26,33 +32,74 @@ function getGermanMonth(date: Date): string {
   return GERMAN_MONTHS[date.getMonth()]
 }
 
+// ─── Error Classification ────────────────────────────────────────────────────
+
+function classifyError(raw: string): string {
+  // API key issues
+  if (/api.?key|auth|unauthorized|401/i.test(raw))
+    return `KI-Service Fehler: API-Key Problem. (${raw.slice(0, 120)})`
+
+  // Rate limits
+  if (/rate|429|too many/i.test(raw))
+    return 'Zu viele Anfragen. Bitte versuche es in einer Minute erneut.'
+
+  // Model not found
+  if (/model|not.?found|404/i.test(raw))
+    return `KI-Modell nicht verfügbar. (${raw.slice(0, 120)})`
+
+  // Network / timeout
+  if (/timeout|ECONNREFUSED|ENOTFOUND|network|fetch failed/i.test(raw))
+    return `Netzwerkfehler beim Aufruf der KI. (${raw.slice(0, 120)})`
+
+  // DB errors
+  if (/relation|column|database|drizzle|postgres|sql/i.test(raw))
+    return `Datenbankfehler: ${raw.slice(0, 150)}`
+
+  // Pass through the actual error (truncated) for anything else
+  return `Fehler: ${raw.slice(0, 200)}`
+}
+
 // ─── Server Actions ──────────────────────────────────────────────────────────
 
 export async function generateWeeklySuggestions(params: {
   weekStartDate: Date
   weekContext?: WeekContext
-}): Promise<AISuggestionSet> {
+}): Promise<ActionResult<AISuggestionSet>> {
   const { userId } = await auth()
-  if (!userId) throw new Error('Nicht angemeldet')
+  if (!userId) {
+    return { success: false, error: 'Nicht angemeldet. Bitte melde dich zuerst an.' }
+  }
 
-  const [preferences, recentRecipes, recentRatings] = await Promise.all([
-    getFamilyPreferences(),
-    findRecentlyUsedRecipes(userId),
-    findRecentRatings(userId),
-  ])
+  try {
+    // Preferences are required; history and ratings are optional (tables may not exist yet)
+    const preferences = await getFamilyPreferences()
+    const [recentRecipes, recentRatings] = await Promise.all([
+      findRecentlyUsedRecipes(userId).catch(() => []),
+      findRecentRatings(userId).catch(() => []),
+    ])
 
-  const currentDate = params.weekStartDate
-  const currentSeason = getGermanSeason(currentDate)
-  const currentMonth = getGermanMonth(currentDate)
+    // Ensure Date object (may arrive as ISO string from client serialization)
+    const currentDate = params.weekStartDate instanceof Date
+      ? params.weekStartDate
+      : new Date(params.weekStartDate)
+    const currentSeason = getGermanSeason(currentDate)
+    const currentMonth = getGermanMonth(currentDate)
 
-  return generateWeeklyMealPlan({
-    familyPreferences: preferences,
-    recentMealHistory: recentRecipes,
-    recentRatings,
-    weekContext: params.weekContext,
-    currentSeason,
-    currentMonth,
-  })
+    const data = await generateWeeklyMealPlan({
+      familyPreferences: preferences,
+      recentMealHistory: recentRecipes,
+      recentRatings,
+      weekContext: params.weekContext,
+      currentSeason,
+      currentMonth,
+    })
+
+    return { success: true, data }
+  } catch (err) {
+    console.error('[generateWeeklySuggestions]', err)
+    const raw = err instanceof Error ? err.message : String(err)
+    return { success: false, error: classifyError(raw) }
+  }
 }
 
 export async function generateAlternativeSuggestion(params: {
@@ -60,22 +107,32 @@ export async function generateAlternativeSuggestion(params: {
   mealType: string
   category: string
   excludeRecipeIds: number[]
-}): Promise<AISuggestion> {
+}): Promise<ActionResult<AISuggestion>> {
   const { userId } = await auth()
-  if (!userId) throw new Error('Nicht angemeldet')
+  if (!userId) {
+    return { success: false, error: 'Nicht angemeldet.' }
+  }
 
-  const preferences = await getFamilyPreferences()
+  try {
+    const preferences = await getFamilyPreferences()
 
-  const currentDate = new Date()
-  const currentSeason = getGermanSeason(currentDate)
-  const currentMonth = getGermanMonth(currentDate)
+    const currentDate = new Date()
+    const currentSeason = getGermanSeason(currentDate)
+    const currentMonth = getGermanMonth(currentDate)
 
-  return generateSingleAlternative({
-    day: params.day,
-    mealType: params.mealType,
-    category: params.category,
-    familyPreferences: preferences,
-    currentSeason,
-    currentMonth,
-  })
+    const data = await generateSingleAlternative({
+      day: params.day,
+      mealType: params.mealType,
+      category: params.category,
+      familyPreferences: preferences,
+      currentSeason,
+      currentMonth,
+    })
+
+    return { success: true, data }
+  } catch (err) {
+    console.error('[generateAlternativeSuggestion]', err)
+    const raw = err instanceof Error ? err.message : String(err)
+    return { success: false, error: classifyError(raw) }
+  }
 }

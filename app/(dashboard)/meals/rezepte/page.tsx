@@ -14,8 +14,8 @@ export default async function RezeptePage() {
     <div className="space-y-6 pb-16 lg:pb-0">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Rezepte</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="text-2xl font-bold text-foreground">Rezepte</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             Deine gesammelten Rezepte
           </p>
         </div>
@@ -31,11 +31,11 @@ export default async function RezeptePage() {
       {recipes.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="py-12 text-center">
-            <BookOpen className="mx-auto h-12 w-12 text-slate-200" />
-            <p className="mt-4 text-slate-500">
+            <BookOpen className="mx-auto h-12 w-12 text-muted-foreground/25" />
+            <p className="mt-4 text-muted-foreground">
               Noch keine Rezepte vorhanden
             </p>
-            <p className="mt-1 text-sm text-slate-400">
+            <p className="mt-1 text-sm text-muted-foreground/60">
               Erstelle dein erstes Rezept, um loszulegen.
             </p>
             <Link href="/meals/rezepte/neu" className="mt-4 inline-block">

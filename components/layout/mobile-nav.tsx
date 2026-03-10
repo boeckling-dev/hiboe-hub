@@ -17,7 +17,7 @@ export function MobileNav({ variant = 'hamburger' }: MobileNavProps) {
 
   if (variant === 'bottom-tabs') {
     return (
-      <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-16 items-center justify-around border-t bg-white lg:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-16 items-center justify-around border-t bg-card lg:hidden">
         {navItems.map((item) => {
           const Icon = item.icon
           const isActive =
@@ -30,7 +30,7 @@ export function MobileNav({ variant = 'hamburger' }: MobileNavProps) {
               href={item.href}
               className={cn(
                 'flex flex-col items-center gap-1 px-3 py-1 text-xs font-medium transition-colors',
-                isActive ? 'text-slate-900' : 'text-slate-400'
+                isActive ? 'text-meals-highlight' : 'text-muted-foreground/60'
               )}
             >
               <Icon className={cn('h-5 w-5', isActive && 'stroke-[2.5]')} />
@@ -57,7 +57,7 @@ export function MobileNav({ variant = 'hamburger' }: MobileNavProps) {
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100"
+                className="flex items-center gap-3 rounded-xl px-3 py-2 text-foreground/80 hover:bg-muted"
               >
                 <Icon className="h-4 w-4" />
                 {item.label}

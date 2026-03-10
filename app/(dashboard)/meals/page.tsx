@@ -15,8 +15,8 @@ export default async function MealsPage() {
     return (
       <div className="space-y-6 pb-16 lg:pb-0">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Mahlzeiten</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="text-2xl font-bold text-foreground">Mahlzeiten</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             Dein Wochenplan auf einen Blick
           </p>
         </div>
@@ -45,8 +45,8 @@ export default async function MealsPage() {
     <div className="space-y-6 pb-16 lg:pb-0">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Mahlzeiten</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="text-2xl font-bold text-foreground">Mahlzeiten</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             Dein aktiver Wochenplan
           </p>
         </div>

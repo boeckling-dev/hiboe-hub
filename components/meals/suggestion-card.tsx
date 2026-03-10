@@ -46,14 +46,15 @@ export function SuggestionCard({
   return (
     <Card
       className={cn(
-        'relative overflow-hidden transition-all',
-        accepted && 'ring-2 ring-emerald-500 border-emerald-300'
+        'relative overflow-hidden rounded-2xl transition-all duration-200',
+        'hover:warm-shadow hover:scale-[1.01]',
+        accepted && 'ring-2 ring-meals-success border-meals-success/30'
       )}
     >
       {/* Accepted overlay indicator */}
       {accepted && (
-        <div className="absolute top-2 right-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-white">
-          <Check className="h-3.5 w-3.5" />
+        <div className="absolute top-2 right-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-meals-success text-white warm-shadow-sm animate-pop">
+          <Check className="h-4 w-4" />
         </div>
       )}
 
@@ -66,13 +67,13 @@ export function SuggestionCard({
         </div>
 
         {/* Title */}
-        <h3 className="text-base font-semibold leading-tight text-slate-900">
+        <h3 className="text-base font-semibold leading-tight text-foreground">
           {recipe.title}
         </h3>
 
         {/* Description */}
         {recipe.description && (
-          <p className="mt-1 text-sm text-slate-600 line-clamp-2">
+          <p className="mt-1 text-sm text-foreground/70 line-clamp-2">
             {recipe.description}
           </p>
         )}
@@ -110,13 +111,13 @@ export function SuggestionCard({
               {keyIngredients.map((ing) => (
                 <span
                   key={ing.name}
-                  className="rounded-md bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600"
+                  className="rounded-lg bg-meals-surface px-2 py-0.5 text-xs text-foreground/70"
                 >
                   {ing.name}
                 </span>
               ))}
               {recipe.ingredients.length > 5 && (
-                <span className="text-xs text-slate-400">
+                <span className="text-xs text-muted-foreground/60">
                   +{recipe.ingredients.length - 5} weitere
                 </span>
               )}
@@ -126,7 +127,7 @@ export function SuggestionCard({
 
         {/* AI reasoning */}
         {reasoning && (
-          <p className="mt-3 text-xs italic text-slate-500 line-clamp-2">
+          <p className="mt-3 text-xs italic text-muted-foreground line-clamp-2">
             {reasoning}
           </p>
         )}
@@ -139,10 +140,10 @@ export function SuggestionCard({
               variant={accepted ? 'default' : 'outline'}
               onClick={onAccept}
               className={cn(
-                'flex-1',
+                'flex-1 rounded-xl',
                 accepted
-                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                  : 'border-emerald-300 text-emerald-700 hover:bg-emerald-50'
+                  ? 'bg-meals-success hover:bg-meals-success/90 text-white'
+                  : 'border-meals-success/50 text-meals-success hover:bg-meals-success-soft'
               )}
             >
               <Check className="mr-1.5 h-3.5 w-3.5" />
@@ -156,6 +157,7 @@ export function SuggestionCard({
               variant="outline"
               onClick={onRequestAlternative}
               aria-label="Alternative vorschlagen"
+              className="rounded-xl"
             >
               <Shuffle className="h-3.5 w-3.5" />
             </Button>
@@ -166,7 +168,7 @@ export function SuggestionCard({
               size="sm"
               variant="outline"
               onClick={onReject}
-              className="border-red-200 text-red-600 hover:bg-red-50"
+              className="rounded-xl border-destructive/30 text-destructive hover:bg-destructive/5"
               aria-label="Vorschlag ablehnen"
             >
               <X className="h-3.5 w-3.5" />

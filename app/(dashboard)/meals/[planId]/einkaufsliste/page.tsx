@@ -44,13 +44,13 @@ export default async function EinkaufslistePage({ params }: EinkaufslistePagePro
       <div>
         <Link
           href={`/meals/${plan.id}`}
-          className="mb-4 inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700"
+          className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground/80"
         >
           <ArrowLeft className="h-4 w-4" />
           Zurück zum Wochenplan
         </Link>
-        <h1 className="text-2xl font-bold text-slate-900">Einkaufsliste</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="text-2xl font-bold text-foreground">Einkaufsliste</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Woche ab {weekStart}
         </p>
       </div>

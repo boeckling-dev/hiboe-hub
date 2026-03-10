@@ -29,7 +29,7 @@ export function MealPlanStatusBar({ plan }: MealPlanStatusBarProps) {
         )
       : 0
 
-  // Count vegetarian meals (tagged with 'vegetarisch' or 'vegan')
+  // Count vegetarian meals
   const vegetarianCount = entries.filter((e) => {
     const tags = e.recipe?.tags ?? []
     return tags.some(
@@ -40,19 +40,19 @@ export function MealPlanStatusBar({ plan }: MealPlanStatusBarProps) {
 
   const stats = [
     ...(rezeptCount > 0
-      ? [{ icon: ChefHat, label: `${rezeptCount}x selbst kochen`, color: 'text-emerald-600' }]
+      ? [{ icon: ChefHat, label: `${rezeptCount}x selbst kochen`, color: 'text-emerald-600', iconBg: 'bg-emerald-100' }]
       : []),
     ...(lieferserviceCount > 0
-      ? [{ icon: Truck, label: `${lieferserviceCount}x Lieferservice`, color: 'text-orange-600' }]
+      ? [{ icon: Truck, label: `${lieferserviceCount}x Lieferservice`, color: 'text-orange-600', iconBg: 'bg-orange-100' }]
       : []),
     ...(vorratCount > 0
-      ? [{ icon: Snowflake, label: `${vorratCount}x Vorrat`, color: 'text-sky-600' }]
+      ? [{ icon: Snowflake, label: `${vorratCount}x Vorrat`, color: 'text-sky-600', iconBg: 'bg-sky-100' }]
       : []),
     ...(avgPrepTime > 0
-      ? [{ icon: Clock, label: `\u00D8 ${avgPrepTime} Min.`, color: 'text-muted-foreground' }]
+      ? [{ icon: Clock, label: `Ø ${avgPrepTime} Min.`, color: 'text-amber-600', iconBg: 'bg-amber-100' }]
       : []),
     ...(vegetarianCount > 0
-      ? [{ icon: Leaf, label: `${vegetarianCount}x vegetarisch`, color: 'text-green-600' }]
+      ? [{ icon: Leaf, label: `${vegetarianCount}x vegetarisch`, color: 'text-green-600', iconBg: 'bg-green-100' }]
       : []),
   ]
 
@@ -61,14 +61,25 @@ export function MealPlanStatusBar({ plan }: MealPlanStatusBarProps) {
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+    <div className="flex flex-wrap items-center gap-2">
       {stats.map((stat, i) => (
         <div
           key={i}
-          className={cn('flex items-center gap-1 text-xs font-medium', stat.color)}
+          className={cn(
+            'flex items-center gap-2 rounded-xl px-3 py-2',
+            'bg-card warm-shadow-sm',
+            'transition-all hover:warm-shadow hover:scale-[1.02]'
+          )}
         >
-          <stat.icon className="size-3.5" />
-          <span>{stat.label}</span>
+          <div className={cn(
+            'flex size-7 items-center justify-center rounded-lg',
+            stat.iconBg
+          )}>
+            <stat.icon className={cn('size-4', stat.color)} />
+          </div>
+          <span className="text-xs font-semibold text-foreground">
+            {stat.label}
+          </span>
         </div>
       ))}
     </div>

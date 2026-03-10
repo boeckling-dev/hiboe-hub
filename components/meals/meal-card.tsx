@@ -43,8 +43,9 @@ export function MealCard({
   return (
     <div
       className={cn(
-        'group relative rounded-lg border p-2',
-        'transition-shadow hover:shadow-sm',
+        'group relative rounded-2xl border p-3',
+        'transition-all duration-200 ease-out',
+        'hover:scale-[1.02] hover:warm-shadow',
         colors.border,
         colors.bg
       )}
@@ -53,7 +54,7 @@ export function MealCard({
       <div className="flex items-start justify-between gap-1">
         <p
           className={cn(
-            'line-clamp-2 text-xs font-semibold leading-tight',
+            'line-clamp-2 text-sm font-bold leading-snug',
             colors.text
           )}
           title={title}
@@ -109,7 +110,7 @@ export function MealCard({
         </p>
       )}
 
-      {/* Rate button (non-editable mode, e.g., after cooking) */}
+      {/* Rate button (non-editable mode) */}
       {!editable && onRate && (
         <Button
           variant="ghost"

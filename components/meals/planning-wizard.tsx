@@ -46,11 +46,11 @@ import { ShoppingList } from './shopping-list'
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const STEP_LABELS = [
-  'Was steht an?',
-  'Vorschläge',
-  'Anpassen',
-  'Einkaufsliste',
-  'Fertig!',
+  '🗓️ Was steht an?',
+  '🤖 Vorschläge',
+  '✏️ Anpassen',
+  '🛒 Einkaufsliste',
+  '🎉 Fertig!',
 ]
 
 function getNextMonday(): Date {
@@ -151,15 +151,17 @@ export function PlanningWizard() {
         weekContext:
           Object.keys(weekContext).length > 0 ? weekContext : undefined,
       })
-      setSuggestions(result)
+
+      if (!result.success) {
+        setGenerateError(result.error)
+        return
+      }
+
+      setSuggestions(result.data)
       // Auto-accept all suggestions initially
-      setAcceptedIndices(new Set(result.suggestions.map((_, i) => i)))
-    } catch (err) {
-      setGenerateError(
-        err instanceof Error
-          ? err.message
-          : 'Fehler beim Erstellen der Vorschläge'
-      )
+      setAcceptedIndices(new Set(result.data.suggestions.map((_, i) => i)))
+    } catch {
+      setGenerateError('Fehler beim Erstellen der Vorschläge. Bitte versuche es erneut.')
     } finally {
       setIsGenerating(false)
     }
@@ -187,17 +189,19 @@ export function PlanningWizard() {
     const s = suggestions.suggestions[index]
 
     try {
-      const alternative = await generateAlternativeSuggestion({
+      const result = await generateAlternativeSuggestion({
         day: s.day,
         mealType: s.mealType,
         category: s.category,
         excludeRecipeIds: [],
       })
 
+      if (!result.success) return
+
       setSuggestions((prev) => {
         if (!prev) return prev
         const updated = [...prev.suggestions]
-        updated[index] = alternative
+        updated[index] = result.data
         return { ...prev, suggestions: updated }
       })
     } catch {
@@ -324,7 +328,7 @@ export function PlanningWizard() {
 
   const acceptedCount = acceptedIndices.size
   const categoryBreakdown = suggestions
-    ? suggestions.suggestions
+    ? (suggestions.suggestions ?? [])
         .filter((_, i) => acceptedIndices.has(i))
         .reduce(
           (acc, s) => {
@@ -355,18 +359,18 @@ export function PlanningWizard() {
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Week date range */}
-              <div className="rounded-lg bg-slate-50 p-4 text-center">
+              <div className="rounded-2xl bg-meals-surface p-4 text-center warm-shadow-sm">
                 <p className="text-sm text-muted-foreground">
                   Planung für die Woche
                 </p>
-                <p className="mt-1 text-lg font-semibold text-slate-900">
+                <p className="mt-1 text-lg font-semibold text-foreground">
                   {formatDateRange(weekStartDate)}
                 </p>
               </div>
 
               {/* Eating out days */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">
+                <label className="mb-2 block text-sm font-medium text-foreground/80">
                   An welchen Tagen esst ihr auswärts?
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -376,10 +380,10 @@ export function PlanningWizard() {
                       type="button"
                       onClick={() => toggleEatingOutDay(day)}
                       className={cn(
-                        'rounded-lg border px-3 py-2 text-sm font-medium transition-colors',
+                        'rounded-xl border px-3 py-2 text-sm font-medium transition-all',
                         eatingOutDays.includes(day)
-                          ? 'border-slate-900 bg-slate-900 text-white'
-                          : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+                          ? 'border-meals-highlight bg-meals-highlight text-white warm-shadow-sm'
+                          : 'border-border bg-card text-foreground/70 hover:border-meals-highlight/30 hover:bg-meals-highlight-soft/30'
                       )}
                     >
                       {DAY_LABELS_SHORT[day]}
@@ -392,7 +396,7 @@ export function PlanningWizard() {
               <div>
                 <label
                   htmlFor="special-events"
-                  className="mb-2 block text-sm font-medium text-slate-700"
+                  className="mb-2 block text-sm font-medium text-foreground/80"
                 >
                   Gibt es Besonderes diese Woche?
                 </label>
@@ -409,7 +413,7 @@ export function PlanningWizard() {
               <div>
                 <label
                   htmlFor="leftovers"
-                  className="mb-2 block text-sm font-medium text-slate-700"
+                  className="mb-2 block text-sm font-medium text-foreground/80"
                 >
                   Reste von letzter Woche?
                 </label>
@@ -439,12 +443,15 @@ export function PlanningWizard() {
         <div className="space-y-6">
           {isGenerating && (
             <div className="flex flex-col items-center justify-center py-16">
-              <ChefHat className="h-12 w-12 animate-bounce text-slate-400" />
-              <p className="mt-4 text-lg font-medium text-slate-600">
-                Plane wird erstellt...
+              <div className="relative">
+                <ChefHat className="h-14 w-14 animate-bounce text-meals-highlight" />
+                <span className="absolute -right-2 -top-2 text-2xl animate-wiggle">✨</span>
+              </div>
+              <p className="mt-4 text-lg font-bold text-foreground">
+                Köchin KI rührt den Löffel...
               </p>
-              <p className="mt-1 text-sm text-slate-400">
-                Die KI stellt den perfekten Wochenplan zusammen
+              <p className="mt-1 text-sm text-muted-foreground">
+                Der perfekte Wochenplan wird zusammengestellt
               </p>
             </div>
           )}
@@ -469,13 +476,13 @@ export function PlanningWizard() {
             <>
               {/* Week summary from AI */}
               {suggestions.weekSummary && (
-                <Card className="border-slate-200 bg-slate-50">
+                <Card className="border-meals-highlight/20 bg-meals-highlight-soft/30 rounded-2xl">
                   <CardContent className="p-4">
-                    <p className="text-sm text-slate-700">
+                    <p className="text-sm text-foreground/80">
                       {suggestions.weekSummary}
                     </p>
                     {suggestions.shoppingEstimate && (
-                      <p className="mt-1 text-xs text-slate-500">
+                      <p className="mt-1 text-xs text-muted-foreground">
                         Geschätzte Einkaufskosten: {suggestions.shoppingEstimate}
                       </p>
                     )}
@@ -485,8 +492,8 @@ export function PlanningWizard() {
 
               {/* Accept all button */}
               <div className="flex items-center justify-between">
-                <p className="text-sm text-slate-500">
-                  {acceptedIndices.size} von {suggestions.suggestions.length}{' '}
+                <p className="text-sm text-muted-foreground">
+                  {acceptedIndices.size} von {(suggestions.suggestions ?? []).length}{' '}
                   Vorschlägen akzeptiert
                 </p>
                 <Button variant="outline" size="sm" onClick={acceptAll}>
@@ -497,7 +504,7 @@ export function PlanningWizard() {
 
               {/* Suggestions grid */}
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {suggestions.suggestions.map((suggestion, index) => (
+                {(suggestions.suggestions ?? []).map((suggestion, index) => (
                   <SuggestionCard
                     key={`${suggestion.day}-${suggestion.mealType}-${suggestion.category}-${index}`}
                     suggestion={suggestion}
@@ -539,8 +546,8 @@ export function PlanningWizard() {
         <div className="space-y-6">
           {isCreatingPlan && (
             <div className="flex flex-col items-center justify-center py-16">
-              <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
-              <p className="mt-4 text-sm text-slate-600">
+              <Loader2 className="h-8 w-8 animate-spin text-meals-highlight" />
+              <p className="mt-4 text-sm text-foreground/70">
                 Plan wird erstellt...
               </p>
             </div>
@@ -583,8 +590,8 @@ export function PlanningWizard() {
         <div className="space-y-6">
           {isLoadingShopping && (
             <div className="flex flex-col items-center justify-center py-16">
-              <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
-              <p className="mt-4 text-sm text-slate-600">
+              <Loader2 className="h-8 w-8 animate-spin text-meals-highlight" />
+              <p className="mt-4 text-sm text-foreground/70">
                 Einkaufsliste wird erstellt...
               </p>
             </div>
@@ -638,13 +645,14 @@ export function PlanningWizard() {
                   width: `${8 + Math.random() * 8}px`,
                   height: `${8 + Math.random() * 8}px`,
                   backgroundColor: [
+                    '#f97316',
                     '#f43f5e',
-                    '#8b5cf6',
-                    '#3b82f6',
+                    '#a855f7',
                     '#10b981',
                     '#f59e0b',
                     '#ec4899',
-                  ][Math.floor(Math.random() * 6)],
+                    '#06b6d4',
+                  ][Math.floor(Math.random() * 7)],
                   borderRadius: Math.random() > 0.5 ? '50%' : '0',
                 }}
               />
@@ -663,7 +671,7 @@ export function PlanningWizard() {
             </CardHeader>
             <CardContent className="space-y-4">
               {activated && (
-                <p className="text-sm text-emerald-700">
+                <p className="text-sm text-meals-success">
                   Dein Wochenplan ist jetzt aktiv. Du wirst gleich
                   weitergeleitet...
                 </p>
@@ -672,19 +680,19 @@ export function PlanningWizard() {
               {!activated && (
                 <>
                   {/* Plan summary */}
-                  <div className="rounded-lg bg-slate-50 p-4">
+                  <div className="rounded-2xl bg-meals-surface p-5 warm-shadow-sm">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <p className="text-xs text-muted-foreground">
                           Mahlzeiten
                         </p>
-                        <p className="text-2xl font-bold text-slate-900">
+                        <p className="text-2xl font-bold text-foreground">
                           {acceptedCount}
                         </p>
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground">Woche</p>
-                        <p className="text-sm font-medium text-slate-900">
+                        <p className="text-sm font-medium text-foreground">
                           {formatDateRange(weekStartDate)}
                         </p>
                       </div>
@@ -694,7 +702,7 @@ export function PlanningWizard() {
                   {/* Category breakdown */}
                   {Object.keys(categoryBreakdown).length > 0 && (
                     <div>
-                      <p className="mb-2 text-sm font-medium text-slate-700">
+                      <p className="mb-2 text-sm font-medium text-foreground/80">
                         Aufschlüsselung nach Kategorie
                       </p>
                       <div className="flex flex-wrap gap-2">
@@ -711,7 +719,7 @@ export function PlanningWizard() {
 
                   {/* Shopping items count */}
                   {shoppingItems.length > 0 && (
-                    <p className="text-sm text-slate-600">
+                    <p className="text-sm text-foreground/70">
                       {shoppingItems.length} Artikel auf der Einkaufsliste
                     </p>
                   )}
@@ -732,7 +740,7 @@ export function PlanningWizard() {
               <Button
                 onClick={handleActivate}
                 disabled={isActivating || !planId}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                className="bg-meals-success hover:bg-meals-success/90 text-white rounded-xl warm-shadow-sm hover:warm-shadow transition-all"
               >
                 {isActivating ? (
                   <>

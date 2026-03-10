@@ -43,7 +43,7 @@ export function TodayView({ entries, mealPlanId, deliveryServices = [] }: TodayV
       return (
         <Card className="border-dashed">
           <CardContent className="py-8 text-center">
-            <p className="text-sm text-slate-400">Keine Mahlzeit geplant</p>
+            <p className="text-sm text-muted-foreground/60">Keine Mahlzeit geplant</p>
           </CardContent>
         </Card>
       )
@@ -57,7 +57,7 @@ export function TodayView({ entries, mealPlanId, deliveryServices = [] }: TodayV
       <Card className="overflow-hidden">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-sm font-medium text-slate-500 uppercase tracking-wide">
+            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
               {MEAL_TYPE_LABELS[mealType]}
             </CardTitle>
             <div className="flex items-center gap-2">
@@ -68,16 +68,16 @@ export function TodayView({ entries, mealPlanId, deliveryServices = [] }: TodayV
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <h3 className="text-xl font-bold text-slate-900">
+            <h3 className="text-xl font-bold text-foreground">
               {entry.recipe?.title || entry.customMealNote || entry.deliveryServiceName || entry.vorratNote || 'Mahlzeit'}
             </h3>
             {entry.recipe?.description && (
-              <p className="mt-1 text-sm text-slate-600">{entry.recipe.description}</p>
+              <p className="mt-1 text-sm text-foreground/70">{entry.recipe.description}</p>
             )}
           </div>
 
           {totalTime > 0 && (
-            <div className="flex items-center gap-4 text-sm text-slate-500">
+            <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-1.5">
                 <Clock className="h-4 w-4" />
                 <span>{totalTime} Min</span>
@@ -93,7 +93,7 @@ export function TodayView({ entries, mealPlanId, deliveryServices = [] }: TodayV
           {/* Key ingredients preview */}
           {entry.recipe?.ingredients && entry.recipe.ingredients.length > 0 && (
             <div>
-              <p className="mb-1 text-xs font-medium text-slate-500">Hauptzutaten</p>
+              <p className="mb-1 text-xs font-medium text-muted-foreground">Hauptzutaten</p>
               <div className="flex flex-wrap gap-1">
                 {entry.recipe.ingredients.slice(0, 6).map((ing, idx) => (
                   <Badge key={idx} variant="outline" className="text-xs">
@@ -101,7 +101,7 @@ export function TodayView({ entries, mealPlanId, deliveryServices = [] }: TodayV
                   </Badge>
                 ))}
                 {entry.recipe.ingredients.length > 6 && (
-                  <Badge variant="outline" className="text-xs text-slate-400">
+                  <Badge variant="outline" className="text-xs text-muted-foreground/60">
                     +{entry.recipe.ingredients.length - 6}
                   </Badge>
                 )}
@@ -145,15 +145,15 @@ export function TodayView({ entries, mealPlanId, deliveryServices = [] }: TodayV
   return (
     <div className="space-y-6 pb-16 lg:pb-0">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Heute kochen</h1>
-        <p className="mt-1 text-sm text-slate-500">{dateFormatted}</p>
+        <h1 className="text-2xl font-bold text-foreground">Heute kochen</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{dateFormatted}</p>
       </div>
 
       {todayEntries.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="py-12 text-center">
-            <UtensilsCrossed className="mx-auto h-12 w-12 text-slate-200" />
-            <p className="mt-4 text-slate-500">Für heute ist nichts geplant</p>
+            <UtensilsCrossed className="mx-auto h-12 w-12 text-muted-foreground/25" />
+            <p className="mt-4 text-muted-foreground">Für heute ist nichts geplant</p>
             <Link href="/meals" className="mt-4 inline-block">
               <Button variant="outline" size="sm">Zum Wochenplan</Button>
             </Link>
@@ -175,8 +175,8 @@ export function TodayView({ entries, mealPlanId, deliveryServices = [] }: TodayV
             <div className="flex items-center gap-3">
               <span className="text-2xl">😴</span>
               <div>
-                <p className="font-medium text-slate-900">Zu müde zum Kochen?</p>
-                <p className="text-sm text-slate-500">Kein Problem, bestell was!</p>
+                <p className="font-medium text-foreground">Zu müde zum Kochen?</p>
+                <p className="text-sm text-muted-foreground">Kein Problem, bestell was!</p>
               </div>
             </div>
             <Button

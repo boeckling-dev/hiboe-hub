@@ -101,25 +101,25 @@ export function PreferencesForm({ preferences }: PreferencesFormProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           {members.length === 0 && (
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-muted-foreground/60">
               Noch keine Familienmitglieder angelegt. Die KI kann bessere Vorschläge machen, wenn sie eure Familie kennt.
             </p>
           )}
           {members.map((member, idx) => (
-            <div key={idx} className="rounded-lg border border-slate-200 p-4 space-y-3">
+            <div key={idx} className="rounded-lg border border-border p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 flex-1">
                   <input
                     type="text"
                     value={member.name}
                     onChange={e => updateMember(idx, { name: e.target.value })}
-                    className="flex h-9 w-full max-w-[200px] rounded-md border border-slate-200 bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
+                    className="flex h-9 w-full max-w-[200px] rounded-md border border-border bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-meals-highlight/30"
                     placeholder="Name"
                   />
                   <select
                     value={member.role}
                     onChange={e => updateMember(idx, { role: e.target.value as 'erwachsener' | 'kind' })}
-                    className="flex h-9 rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm shadow-sm"
+                    className="flex h-9 rounded-md border border-border bg-transparent px-3 py-1 text-sm shadow-sm"
                   >
                     <option value="erwachsener">Erwachsener</option>
                     <option value="kind">Kind</option>
@@ -132,46 +132,46 @@ export function PreferencesForm({ preferences }: PreferencesFormProps) {
                         max={18}
                         value={member.ageYears ?? ''}
                         onChange={e => updateMember(idx, { ageYears: Number(e.target.value) || undefined })}
-                        className="flex h-9 w-16 rounded-md border border-slate-200 bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
+                        className="flex h-9 w-16 rounded-md border border-border bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-meals-highlight/30"
                         placeholder="Alter"
                       />
-                      <span className="text-xs text-slate-500">Jahre</span>
+                      <span className="text-xs text-muted-foreground">Jahre</span>
                     </div>
                   )}
                 </div>
                 <Button type="button" variant="ghost" size="sm" onClick={() => removeMember(idx)}>
-                  <Trash2 className="h-4 w-4 text-slate-400" />
+                  <Trash2 className="h-4 w-4 text-muted-foreground/60" />
                 </Button>
               </div>
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <div>
-                  <label className="text-xs font-medium text-slate-500">Allergien (kommagetrennt)</label>
+                  <label className="text-xs font-medium text-muted-foreground">Allergien (kommagetrennt)</label>
                   <input
                     type="text"
                     value={member.allergies.join(', ')}
                     onChange={e => updateMember(idx, { allergies: e.target.value.split(',').map(a => a.trim()).filter(Boolean) })}
-                    className="mt-1 flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
+                    className="mt-1 flex h-9 w-full rounded-md border border-border bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-meals-highlight/30"
                     placeholder="z.B. Nüsse, Laktose"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-500">Mag nicht</label>
+                  <label className="text-xs font-medium text-muted-foreground">Mag nicht</label>
                   <input
                     type="text"
                     value={member.dislikes.join(', ')}
                     onChange={e => updateMember(idx, { dislikes: e.target.value.split(',').map(d => d.trim()).filter(Boolean) })}
-                    className="mt-1 flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
+                    className="mt-1 flex h-9 w-full rounded-md border border-border bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-meals-highlight/30"
                     placeholder="z.B. Pilze, Oliven"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-500">Lieblingsessen</label>
+                  <label className="text-xs font-medium text-muted-foreground">Lieblingsessen</label>
                   <input
                     type="text"
                     value={member.favorites.join(', ')}
                     onChange={e => updateMember(idx, { favorites: e.target.value.split(',').map(f => f.trim()).filter(Boolean) })}
-                    className="mt-1 flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
+                    className="mt-1 flex h-9 w-full rounded-md border border-border bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-meals-highlight/30"
                     placeholder="z.B. Nudeln, Pizza"
                   />
                 </div>
@@ -187,14 +187,14 @@ export function PreferencesForm({ preferences }: PreferencesFormProps) {
           <CardTitle>Ernährungsregeln</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="mb-2 text-sm text-slate-500">
+          <p className="mb-2 text-sm text-muted-foreground">
             Eine Regel pro Zeile, z.B. &quot;Montag vegetarisch&quot; oder &quot;Wenig Zucker für Kinder&quot;
           </p>
           <textarea
             value={restrictions}
             onChange={e => setRestrictions(e.target.value)}
             rows={4}
-            className="flex min-h-[80px] w-full rounded-md border border-slate-200 bg-transparent px-3 py-2 text-base shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
+            className="flex min-h-[80px] w-full rounded-md border border-border bg-transparent px-3 py-2 text-base shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-meals-highlight/30"
             placeholder="Montag vegetarisch&#10;Freitag Fisch&#10;Wenig Zucker für Kinder"
           />
         </CardContent>
@@ -207,14 +207,14 @@ export function PreferencesForm({ preferences }: PreferencesFormProps) {
             <CardTitle>Küchenausstattung</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="mb-2 text-sm text-slate-500">
+            <p className="mb-2 text-sm text-muted-foreground">
               Kommagetrennt, z.B. Thermomix, Dampfgarer
             </p>
             <input
               type="text"
               value={equipment}
               onChange={e => setEquipment(e.target.value)}
-              className="flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
+              className="flex h-9 w-full rounded-md border border-border bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-meals-highlight/30"
               placeholder="Thermomix, Backofen, Dampfgarer"
             />
           </CardContent>
@@ -226,7 +226,7 @@ export function PreferencesForm({ preferences }: PreferencesFormProps) {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <label className="text-sm text-slate-600">Unter der Woche: {maxPrepWeekday} Min</label>
+              <label className="text-sm text-foreground/70">Unter der Woche: {maxPrepWeekday} Min</label>
               <input
                 type="range"
                 min={10}
@@ -238,7 +238,7 @@ export function PreferencesForm({ preferences }: PreferencesFormProps) {
               />
             </div>
             <div>
-              <label className="text-sm text-slate-600">Am Wochenende: {maxPrepWeekend} Min</label>
+              <label className="text-sm text-foreground/70">Am Wochenende: {maxPrepWeekend} Min</label>
               <input
                 type="range"
                 min={10}
@@ -264,7 +264,7 @@ export function PreferencesForm({ preferences }: PreferencesFormProps) {
         </CardHeader>
         <CardContent className="space-y-2">
           {deliveryServices.length === 0 && (
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-muted-foreground/60">
               Noch keine Lieferdienste hinterlegt. Für den &quot;Zu müde?&quot; Button.
             </p>
           )}
@@ -278,7 +278,7 @@ export function PreferencesForm({ preferences }: PreferencesFormProps) {
                   updated[idx] = { ...updated[idx], name: e.target.value }
                   setDeliveryServices(updated)
                 }}
-                className="flex h-9 w-full max-w-[200px] rounded-md border border-slate-200 bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
+                className="flex h-9 w-full max-w-[200px] rounded-md border border-border bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-meals-highlight/30"
                 placeholder="Name (z.B. Lieferando)"
               />
               <input
@@ -289,11 +289,11 @@ export function PreferencesForm({ preferences }: PreferencesFormProps) {
                   updated[idx] = { ...updated[idx], url: e.target.value || undefined }
                   setDeliveryServices(updated)
                 }}
-                className="flex h-9 flex-1 rounded-md border border-slate-200 bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
+                className="flex h-9 flex-1 rounded-md border border-border bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-meals-highlight/30"
                 placeholder="URL (optional)"
               />
               <Button type="button" variant="ghost" size="sm" onClick={() => removeDeliveryService(idx)}>
-                <Trash2 className="h-4 w-4 text-slate-400" />
+                <Trash2 className="h-4 w-4 text-muted-foreground/60" />
               </Button>
             </div>
           ))}
