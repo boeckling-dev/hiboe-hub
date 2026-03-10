@@ -55,9 +55,15 @@ export async function testCookidooConnection(
     const collections = await client.getCollections()
     const totalRecipes = collections.reduce((sum, c) => sum + c.recipeCount, 0)
 
+    // Debug: include collection details in response
+    const debugInfo = collections.length > 0
+      ? ` (${collections.map(c => `${c.name}: ${c.recipeCount}`).join(', ')})`
+      : ' (keine Sammlungen gefunden)'
+    console.log('[Cookidoo] Collections:', debugInfo)
+
     return {
       success: true,
-      data: { connected: true, recipeCount: totalRecipes },
+      data: { connected: true, recipeCount: totalRecipes, debugInfo },
     }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)

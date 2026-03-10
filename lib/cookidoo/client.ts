@@ -135,16 +135,27 @@ export class CookidooClient {
    */
   async getCollections(): Promise<CookidooCollection[]> {
     // Fetch both custom lists and managed lists (Merkliste/Favoriten) in parallel
-    const [customData, managedData] = await Promise.all([
-      this.request<CookidooCollectionsResponse>(
+    const [customResult, managedResult] = await Promise.allSettled([
+      this.request<Record<string, unknown>>(
         `/organize/${LANGUAGE}/api/custom-list`,
         'GET',
-      ).catch(() => null),
-      this.request<CookidooCollectionsResponse>(
+      ),
+      this.request<Record<string, unknown>>(
         `/organize/${LANGUAGE}/api/managed-list`,
         'GET',
-      ).catch(() => null),
+      ),
     ])
+
+    const customData = customResult.status === 'fulfilled' ? customResult.value : null
+    const managedData = managedResult.status === 'fulfilled' ? managedResult.value : null
+
+    // Debug: log raw responses to help identify the correct response shape
+    console.log('[Cookidoo] custom-list raw keys:', customData ? Object.keys(customData) : 'ERROR',
+      customResult.status === 'rejected' ? (customResult.reason as Error)?.message : '')
+    console.log('[Cookidoo] managed-list raw keys:', managedData ? Object.keys(managedData) : 'ERROR',
+      managedResult.status === 'rejected' ? (managedResult.reason as Error)?.message : '')
+    console.log('[Cookidoo] custom-list raw:', JSON.stringify(customData).slice(0, 500))
+    console.log('[Cookidoo] managed-list raw:', JSON.stringify(managedData).slice(0, 500))
 
     const mapCollection = (listType: 'custom' | 'managed') => (c: CookidooCollectionRaw): CookidooCollection => ({
       id: c.id ?? c.collectionId ?? '',
@@ -153,8 +164,8 @@ export class CookidooClient {
       listType,
     })
 
-    const custom = extractCollections(customData).map(mapCollection('custom'))
-    const managed = extractCollections(managedData).map(mapCollection('managed'))
+    const custom = extractCollections(customData as CookidooCollectionsResponse | null).map(mapCollection('custom'))
+    const managed = extractCollections(managedData as CookidooCollectionsResponse | null).map(mapCollection('managed'))
 
     return [...managed, ...custom]
   }

@@ -61,4 +61,5 @@ export interface CookidooConnectionResult {
   connected: boolean
   recipeCount?: number
   error?: string
+  debugInfo?: string
 }

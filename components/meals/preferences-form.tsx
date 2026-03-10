@@ -90,7 +90,7 @@ export function PreferencesForm({ preferences }: PreferencesFormProps) {
     const result = await testCookidooConnection(cookidooEmail, cookidooPassword)
     if (result.success && result.data.connected) {
       setConnectionStatus('success')
-      setConnectionMessage(`Verbunden! ${result.data.recipeCount ?? 0} Rezepte gefunden.`)
+      setConnectionMessage(`Verbunden! ${result.data.recipeCount ?? 0} Rezepte gefunden.${result.data.debugInfo ?? ''}`)
     } else {
       setConnectionStatus('error')
       setConnectionMessage(result.success ? (result.data.error ?? 'Verbindung fehlgeschlagen') : result.error)
