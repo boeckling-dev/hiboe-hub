@@ -252,29 +252,33 @@ export class CookidooClient {
    * Get full recipe details by ID.
    */
   async getRecipeDetails(recipeId: string): Promise<CookidooRecipeDetail> {
-    const data = await this.request<CookidooRecipeDetailRaw>(
+    const data = await this.request<Record<string, unknown>>(
       `/recipes/recipe/${LANGUAGE}/${recipeId}`,
       'GET',
     )
 
+    console.log('[Cookidoo] recipe-detail raw keys:', Object.keys(data))
+    console.log('[Cookidoo] recipe-detail raw:', JSON.stringify(data).slice(0, 1000))
+
+    const raw = data as CookidooRecipeDetailRaw
     return {
       id: recipeId,
-      name: data.name ?? data.title ?? '',
-      description: data.description,
-      imageUrl: data.imageUrl ?? data.image?.url,
-      totalTime: data.totalTime,
-      prepTime: data.prepTime,
-      servings: data.yield?.value ?? data.servings,
-      ingredients: (data.ingredients ?? []).map((i) => ({
+      name: raw.name ?? raw.title ?? '',
+      description: raw.description,
+      imageUrl: raw.imageUrl ?? raw.image?.url,
+      totalTime: raw.totalTime,
+      prepTime: raw.prepTime,
+      servings: raw.yield?.value ?? raw.servings,
+      ingredients: (raw.ingredients ?? []).map((i) => ({
         type: (i.type ?? 'INGREDIENT') as 'INGREDIENT' | 'HEADER',
         text: i.text ?? i.name ?? '',
       })),
-      instructions: (data.instructions ?? data.steps ?? []).map((s) => ({
+      instructions: (raw.instructions ?? raw.steps ?? []).map((s) => ({
         type: 'STEP' as const,
         text: s.text ?? s.description ?? '',
       })),
-      tools: data.tools ?? [],
-      hints: data.hints,
+      tools: raw.tools ?? [],
+      hints: raw.hints,
     }
   }
 
