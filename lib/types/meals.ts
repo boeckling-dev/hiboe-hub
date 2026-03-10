@@ -26,6 +26,9 @@ export interface AISuggestion {
     ingredients: { name: string; quantity: string; unit: string }[]
     instructions: { step: number; text: string }[]
     sourceUrl: string | null
+    imageUrl?: string | null
+    recipeSource?: 'cookidoo' | 'ai' | 'manual'
+    cookidooId?: string | null
   }
   searchQuery?: string
   reasoning: string

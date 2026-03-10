@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { updateFamilyPreferences } from '@/lib/actions/family-preferences'
-import { Plus, Trash2, Save } from 'lucide-react'
+import { testCookidooConnection, saveCookidooCredentials } from '@/lib/actions/cookidoo'
+import { Plus, Trash2, Save, Loader2, Check, X } from 'lucide-react'
 import type { FamilyPreferences } from '@/lib/db/schema'
 
 interface PreferencesFormProps {
@@ -41,8 +42,19 @@ export function PreferencesForm({ preferences }: PreferencesFormProps) {
   const [deliveryServices, setDeliveryServices] = useState<DeliveryService[]>(
     (preferences.deliveryServices as DeliveryService[]) ?? []
   )
+  const [cookidooEmail, setCookidooEmail] = useState(preferences.cookidooEmail ?? '')
+  const [cookidooPassword, setCookidooPassword] = useState('')
+  const [thermomixModel, setThermomixModel] = useState(preferences.thermomixModel ?? 'TM6')
+  const [preferCookidoo, setPreferCookidoo] = useState(preferences.preferCookidooRecipes ?? true)
+  const [testingConnection, setTestingConnection] = useState(false)
+  const [connectionStatus, setConnectionStatus] = useState<'none' | 'success' | 'error'>('none')
+  const [connectionMessage, setConnectionMessage] = useState('')
+  const [savingCookidoo, setSavingCookidoo] = useState(false)
+
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+
+  const cookidooConfigured = Boolean(preferences.cookidooEmail && preferences.cookidooPasswordEncrypted)
 
   function addMember() {
     setMembers(prev => [...prev, {
@@ -68,6 +80,43 @@ export function PreferencesForm({ preferences }: PreferencesFormProps) {
 
   function removeDeliveryService(index: number) {
     setDeliveryServices(prev => prev.filter((_, i) => i !== index))
+  }
+
+  async function handleTestCookidoo() {
+    if (!cookidooEmail || !cookidooPassword) return
+    setTestingConnection(true)
+    setConnectionStatus('none')
+
+    const result = await testCookidooConnection(cookidooEmail, cookidooPassword)
+    if (result.success && result.data.connected) {
+      setConnectionStatus('success')
+      setConnectionMessage(`Verbunden! ${result.data.recipeCount ?? 0} Rezepte gefunden.`)
+    } else {
+      setConnectionStatus('error')
+      setConnectionMessage(result.success ? (result.data.error ?? 'Verbindung fehlgeschlagen') : result.error)
+    }
+    setTestingConnection(false)
+  }
+
+  async function handleSaveCookidoo() {
+    if (!cookidooEmail || !cookidooPassword) return
+    setSavingCookidoo(true)
+
+    const result = await saveCookidooCredentials({
+      email: cookidooEmail,
+      password: cookidooPassword,
+      thermomixModel,
+      preferCookidooRecipes: preferCookidoo,
+    })
+
+    if (result.success) {
+      setConnectionStatus('success')
+      setConnectionMessage('Cookidoo-Einstellungen gespeichert!')
+    } else {
+      setConnectionStatus('error')
+      setConnectionMessage(result.error)
+    }
+    setSavingCookidoo(false)
   }
 
   async function handleSave() {
@@ -252,6 +301,106 @@ export function PreferencesForm({ preferences }: PreferencesFormProps) {
           </CardContent>
         </Card>
       </div>
+
+      {/* Cookidoo / Thermomix */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Cookidoo / Thermomix</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Verbinde dein Cookidoo-Konto, um Rezepte zu importieren und neue Rezepte an den Thermomix zu senden.
+            {cookidooConfigured && (
+              <span className="ml-2 inline-flex items-center gap-1 text-emerald-600">
+                <Check className="h-3.5 w-3.5" /> Verbunden
+              </span>
+            )}
+          </p>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">E-Mail</label>
+              <input
+                type="email"
+                value={cookidooEmail}
+                onChange={e => setCookidooEmail(e.target.value)}
+                className="mt-1 flex h-9 w-full rounded-md border border-border bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-meals-highlight/30"
+                placeholder="deine@email.de"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Passwort</label>
+              <input
+                type="password"
+                value={cookidooPassword}
+                onChange={e => setCookidooPassword(e.target.value)}
+                className="mt-1 flex h-9 w-full rounded-md border border-border bg-transparent px-3 py-1 text-base shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-meals-highlight/30"
+                placeholder={cookidooConfigured ? '(gespeichert)' : 'Cookidoo-Passwort'}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Thermomix-Modell</label>
+              <select
+                value={thermomixModel}
+                onChange={e => setThermomixModel(e.target.value)}
+                className="mt-1 flex h-9 w-full rounded-md border border-border bg-transparent px-3 py-1 text-sm shadow-sm"
+              >
+                <option value="TM6">TM6</option>
+                <option value="TM5">TM5</option>
+              </select>
+            </div>
+            <div className="flex items-end">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={preferCookidoo}
+                  onChange={e => setPreferCookidoo(e.target.checked)}
+                  className="h-4 w-4 rounded border-border"
+                />
+                <span className="text-sm text-foreground/70">
+                  Cookidoo-Rezepte bei Wochenplan bevorzugen
+                </span>
+              </label>
+            </div>
+          </div>
+
+          {connectionStatus !== 'none' && (
+            <div className={`rounded-lg border p-3 text-sm ${
+              connectionStatus === 'success'
+                ? 'border-emerald-300 bg-emerald-50 text-emerald-800'
+                : 'border-destructive/30 bg-destructive/5 text-destructive'
+            }`}>
+              {connectionStatus === 'success' ? <Check className="mr-1 inline h-4 w-4" /> : <X className="mr-1 inline h-4 w-4" />}
+              {connectionMessage}
+            </div>
+          )}
+
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleTestCookidoo}
+              disabled={testingConnection || !cookidooEmail || !cookidooPassword}
+            >
+              {testingConnection && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
+              Verbindung testen
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              onClick={handleSaveCookidoo}
+              disabled={savingCookidoo || !cookidooEmail || !cookidooPassword}
+            >
+              {savingCookidoo && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
+              Cookidoo speichern
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Delivery Services */}
       <Card>

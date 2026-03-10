@@ -226,6 +226,7 @@ export async function generateWeeklyMealPlan(context: {
   weekContext?: WeekContext
   currentSeason: string
   currentMonth: string
+  cookidooFavorites?: Recipe[]
 }): Promise<AISuggestionSet> {
   const systemPrompt = buildMealPlanSystemPrompt()
   const userPrompt = buildWeeklyPlanUserPrompt(context)

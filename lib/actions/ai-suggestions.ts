@@ -5,6 +5,7 @@ import { generateWeeklyMealPlan, generateSingleAlternative } from '@/lib/ai/meal
 import { getFamilyPreferences } from '@/lib/actions/family-preferences'
 import { findRecentlyUsedRecipes } from '@/lib/db/queries/meal-plans'
 import { findRecentRatings } from '@/lib/db/queries/ratings'
+import { findCookidooRecipes } from '@/lib/db/queries/recipes'
 import type { WeekContext, AISuggestionSet, AISuggestion } from '@/lib/types/meals'
 
 // ─── Result Types ────────────────────────────────────────────────────────────
@@ -73,9 +74,10 @@ export async function generateWeeklySuggestions(params: {
   try {
     // Preferences are required; history and ratings are optional (tables may not exist yet)
     const preferences = await getFamilyPreferences()
-    const [recentRecipes, recentRatings] = await Promise.all([
+    const [recentRecipes, recentRatings, cookidooFavorites] = await Promise.all([
       findRecentlyUsedRecipes(userId).catch(() => []),
       findRecentRatings(userId).catch(() => []),
+      findCookidooRecipes(userId).catch(() => []),
     ])
 
     // Ensure Date object (may arrive as ISO string from client serialization)
@@ -92,6 +94,7 @@ export async function generateWeeklySuggestions(params: {
       weekContext: params.weekContext,
       currentSeason,
       currentMonth,
+      cookidooFavorites: preferences.preferCookidooRecipes ? cookidooFavorites : undefined,
     })
 
     return { success: true, data }

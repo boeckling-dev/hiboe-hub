@@ -37,3 +37,12 @@ export async function searchRecipes(userId: string, query: string) {
     .orderBy(desc(recipes.updatedAt))
     .limit(20)
 }
+
+export async function findCookidooRecipes(userId: string) {
+  return db.select().from(recipes)
+    .where(and(
+      eq(recipes.createdBy, userId),
+      eq(recipes.recipeSource, 'cookidoo'),
+    ))
+    .orderBy(desc(recipes.updatedAt))
+}

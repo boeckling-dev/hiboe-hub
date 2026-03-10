@@ -1,6 +1,7 @@
 import { Clock, Users, ChefHat, ExternalLink } from 'lucide-react'
 import type { Recipe } from '@/lib/db/schema'
 import { FoodIconBubble } from './food-icon-bubble'
+import { CookidooExportButton } from './cookidoo-export-button'
 import { getFoodIcon } from '@/lib/food-icon-map'
 import { cn } from '@/lib/utils'
 
@@ -65,18 +66,33 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
         </div>
       )}
 
-      {/* Source URL */}
-      {recipe.sourceUrl && (
-        <a
-          href={recipe.sourceUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 border rounded-full px-4 py-1.5 text-sm text-foreground/70 hover:bg-muted transition-colors"
-        >
-          <ExternalLink className="h-3.5 w-3.5" />
-          Originalrezept
-        </a>
-      )}
+      {/* Source URL & Cookidoo */}
+      <div className="flex flex-wrap items-center gap-3">
+        {recipe.recipeSource === 'cookidoo' && (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-300 px-4 py-1.5 text-sm text-emerald-800">
+            Cookidoo
+          </span>
+        )}
+        {recipe.thermomixModel && (
+          <span className="inline-flex items-center gap-1.5 border rounded-full px-4 py-1.5 text-sm text-foreground/70">
+            {recipe.thermomixModel}
+          </span>
+        )}
+        {recipe.sourceUrl && (
+          <a
+            href={recipe.sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 border rounded-full px-4 py-1.5 text-sm text-foreground/70 hover:bg-muted transition-colors"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+            Originalrezept
+          </a>
+        )}
+        {!recipe.cookidooId && (
+          <CookidooExportButton recipeId={recipe.id} cookidooId={recipe.cookidooId} />
+        )}
+      </div>
 
       {/* Ingredients */}
       <div>

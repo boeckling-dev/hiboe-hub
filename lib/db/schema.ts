@@ -32,6 +32,9 @@ export const recipes = pgTable('recipes', {
   }[]>().default([]),
   imageUrl: text('image_url'),
   sourceUrl: text('source_url'), // URL of the original internet recipe
+  cookidooId: text('cookidoo_id'), // Cookidoo recipe ID for sync
+  recipeSource: varchar('recipe_source', { length: 20 }), // 'cookidoo' | 'ai' | 'manual'
+  thermomixModel: varchar('thermomix_model', { length: 10 }), // 'TM6', 'TM5'
   createdBy: text('created_by').notNull(), // Clerk user ID
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
@@ -103,6 +106,10 @@ export const familyPreferences = pgTable('family_preferences', {
     name: string
     url?: string
   }[]>().default([]),
+  cookidooEmail: text('cookidoo_email'),
+  cookidooPasswordEncrypted: text('cookidoo_password_encrypted'),
+  thermomixModel: varchar('thermomix_model', { length: 10 }).default('TM6'),
+  preferCookidooRecipes: boolean('prefer_cookidoo_recipes').default(true),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })

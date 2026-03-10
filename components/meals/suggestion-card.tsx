@@ -86,6 +86,12 @@ export function SuggestionCard({
 
       {/* Meta row: outlined pills */}
       <div className="mt-3 flex flex-wrap items-center gap-2">
+        {recipe.recipeSource === 'cookidoo' && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-300 px-3 py-1 text-xs text-emerald-800">
+            Cookidoo
+          </span>
+        )}
+
         {totalTime > 0 && (
           <span className="inline-flex items-center gap-1 border rounded-full px-3 py-1 text-xs text-muted-foreground">
             <Clock className="h-3 w-3" />

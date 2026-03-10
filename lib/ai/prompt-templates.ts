@@ -34,6 +34,12 @@ Erstelle ausgewogene, familientaugliche Wochenpläne mit konkreten Rezepten.
 - Verschiedene Küchenstile einbauen (deutsch, italienisch, asiatisch mild, etc.).
 - Verschiedene Zubereitungsarten (Ofen, Pfanne, Eintopf, Rohkost, etc.).
 
+### Thermomix / Cookidoo
+- Wenn die Familie einen Thermomix besitzt, erstelle bevorzugt Thermomix-optimierte Rezepte.
+- Thermomix-Rezepte sollen konkrete TM-Schritte enthalten (z.B. "5 Sek./Stufe 5 zerkleinern", "20 Min./100°C/Stufe 1 kochen").
+- Wenn Cookidoo-Favoriten als bekannte Rezepte übergeben werden, schlage diese bevorzugt vor.
+- Für neue Rezepte: Erstelle sie so, dass sie auf dem Thermomix zubereitet werden können.
+
 ### Praktikabilität
 - Unter der Woche (Mo–Fr): Maximal 30 Minuten Zubereitungszeit, einfache Rezepte bevorzugen.
 - Am Wochenende (Sa–So): Mehr Zeit erlaubt, auch aufwändigere Rezepte möglich.
@@ -68,6 +74,7 @@ export function buildWeeklyPlanUserPrompt(context: {
   weekContext?: WeekContext
   currentSeason: string
   currentMonth: string
+  cookidooFavorites?: Recipe[]
 }): string {
   const {
     familyPreferences,
@@ -76,6 +83,7 @@ export function buildWeeklyPlanUserPrompt(context: {
     weekContext,
     currentSeason,
     currentMonth,
+    cookidooFavorites,
   } = context
 
   const members = familyPreferences.familyMembers ?? []
@@ -151,6 +159,16 @@ Bitte bevorzuge saisonale Zutaten für ${currentMonth} (${currentSeason}).
         prompt += `- Rezept-ID ${rating.recipeId}${note}\n`
       }
     }
+  }
+
+  // Cookidoo favorites for Thermomix integration
+  if (cookidooFavorites && cookidooFavorites.length > 0) {
+    prompt += `\n## Cookidoo-Favoriten (bevorzugt vorschlagen!)\nDie Familie hat diese Rezepte als Favoriten in Cookidoo gespeichert. Schlage bevorzugt Rezepte aus dieser Liste vor – sie sind erprobt und beliebt.\n`
+    for (const recipe of cookidooFavorites) {
+      const totalTime = (recipe.prepTime ?? 0) + (recipe.cookTime ?? 0)
+      prompt += `- **${recipe.title}** (${totalTime} Min, ${recipe.servings ?? '?'} Portionen)\n`
+    }
+    prompt += `Wenn du ein Cookidoo-Favorit vorschlägst, verwende exakt den gleichen Titel.\n`
   }
 
   // Week context (special events, eating out days, leftovers)
