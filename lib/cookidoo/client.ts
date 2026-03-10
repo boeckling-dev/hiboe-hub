@@ -16,7 +16,7 @@ const TOKEN_PATH = 'ciam/auth/token'
 const LANGUAGE = 'de-DE'
 
 const COOKIDOO_CLIENT_ID = 'kupferwerk-client-nwot'
-const COOKIDOO_CLIENT_SECRET = 'Ls50ON1woySqus1dCdJge'
+const COOKIDOO_CLIENT_SECRET = 'Ls50ON1woySqs1dCdJge'
 const COOKIDOO_BASIC_AUTH = `Basic ${btoa(`${COOKIDOO_CLIENT_ID}:${COOKIDOO_CLIENT_SECRET}`)}`
 
 const REQUEST_TIMEOUT_MS = 15_000
