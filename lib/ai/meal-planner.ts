@@ -6,6 +6,7 @@ import {
   buildWeeklyPlanUserPrompt,
   buildAlternativeSuggestionPrompt,
 } from '@/lib/ai/prompt-templates'
+import { resolveRecipeUrls, resolveRecipeUrl } from '@/lib/ai/recipe-url-resolver'
 
 const anthropic = new Anthropic()
 
@@ -106,21 +107,25 @@ const weeklyPlanTool: Anthropic.Tool = {
                 },
                 sourceUrl: {
                   type: ['string', 'null'],
-                  description: 'URL des Original-Rezepts im Internet (z.B. chefkoch.de).',
+                  description: 'Immer null setzen. Wird automatisch per Internetsuche ermittelt.',
                 },
               },
               required: [
                 'title', 'description', 'prepTime', 'cookTime',
                 'servings', 'difficulty', 'tags', 'ingredients',
-                'instructions', 'sourceUrl',
+                'instructions',
               ],
+            },
+            searchQuery: {
+              type: 'string',
+              description: 'Suchbegriff um das Rezept im Internet zu finden (z.B. "Kartoffelsuppe vegetarisch einfach").',
             },
             reasoning: {
               type: 'string',
               description: 'Kurze Begründung, warum dieses Gericht gewählt wurde.',
             },
           },
-          required: ['day', 'mealType', 'category', 'recipe', 'reasoning'],
+          required: ['day', 'mealType', 'category', 'recipe', 'searchQuery', 'reasoning'],
         },
       },
     },
@@ -190,20 +195,25 @@ const singleSuggestionTool: Anthropic.Tool = {
           },
           sourceUrl: {
             type: ['string', 'null'],
+            description: 'Immer null setzen. Wird automatisch per Internetsuche ermittelt.',
           },
         },
         required: [
           'title', 'description', 'prepTime', 'cookTime',
           'servings', 'difficulty', 'tags', 'ingredients',
-          'instructions', 'sourceUrl',
+          'instructions',
         ],
+      },
+      searchQuery: {
+        type: 'string',
+        description: 'Suchbegriff um das Rezept im Internet zu finden (z.B. "Kartoffelsuppe vegetarisch einfach").',
       },
       reasoning: {
         type: 'string',
         description: 'Kurze Begründung für diesen Vorschlag.',
       },
     },
-    required: ['day', 'mealType', 'category', 'recipe', 'reasoning'],
+    required: ['day', 'mealType', 'category', 'recipe', 'searchQuery', 'reasoning'],
   },
 }
 
@@ -249,10 +259,21 @@ export async function generateWeeklyMealPlan(context: {
     suggestions: AISuggestion[]
   }
 
+  const suggestions = result.suggestions ?? []
+
+  // Resolve real recipe URLs via web search (graceful: never fails the whole request)
+  let resolvedSuggestions: AISuggestion[]
+  try {
+    resolvedSuggestions = await resolveRecipeUrls(suggestions)
+  } catch (err) {
+    console.warn('[generateWeeklyMealPlan] URL resolution failed, continuing without URLs:', err)
+    resolvedSuggestions = suggestions
+  }
+
   return {
     weekSummary: result.weekSummary ?? '',
     shoppingEstimate: result.shoppingEstimate ?? '',
-    suggestions: result.suggestions ?? [],
+    suggestions: resolvedSuggestions,
   }
 }
 
@@ -291,5 +312,13 @@ export async function generateSingleAlternative(context: {
     throw new Error('KI hat kein strukturiertes Ergebnis zurückgegeben.')
   }
 
-  return toolUseBlock.input as AISuggestion
+  const suggestion = toolUseBlock.input as AISuggestion
+
+  // Resolve real recipe URL via web search (graceful: never fails the whole request)
+  try {
+    return await resolveRecipeUrl(suggestion)
+  } catch (err) {
+    console.warn('[generateSingleAlternative] URL resolution failed, continuing without URL:', err)
+    return suggestion
+  }
 }

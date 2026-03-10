@@ -27,6 +27,7 @@ export interface AISuggestion {
     instructions: { step: number; text: string }[]
     sourceUrl: string | null
   }
+  searchQuery?: string
   reasoning: string
 }
 
